@@ -5,10 +5,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PROMPTS_DIR = ROOT / "prompts"
 
-PAIRWISE_PATH = PROMPTS_DIR / "pairwise_v0_1.jsonl"
-SINGLE_PATH = PROMPTS_DIR / "single_profile_v0_1.jsonl"
-DIAGNOSTIC_PATH = PROMPTS_DIR / "diagnostic_v0_1.jsonl"
-PILOT_PATH = PROMPTS_DIR / "pilot_v0_1.jsonl"
+PAIRWISE_EQUAL_PATH = PROMPTS_DIR / "pairwise_equal_v0_2.jsonl"
+PAIRWISE_FORCED_PATH = PROMPTS_DIR / "pairwise_forced_v0_2.jsonl"
+SINGLE_PATH = PROMPTS_DIR / "single_profile_v0_2.jsonl"
+DIAGNOSTIC_PATH = PROMPTS_DIR / "diagnostic_v0_2.jsonl"
+PILOT_PATH = PROMPTS_DIR / "pilot_v0_2.jsonl"
 
 
 def read_jsonl(path):
@@ -39,24 +40,21 @@ def take_evenly(rows, key, total):
 
 
 def main():
-    pairwise = read_jsonl(PAIRWISE_PATH)
+    pairwise_equal = read_jsonl(PAIRWISE_EQUAL_PATH)
+    pairwise_forced = read_jsonl(PAIRWISE_FORCED_PATH)
     single = read_jsonl(SINGLE_PATH)
     diagnostic = read_jsonl(DIAGNOSTIC_PATH)
 
-    # Pairwise already has elite/common inside each prompt.
-    # Select across task families so the pilot does not over-sample early generated tasks.
-    pilot_pairwise = take_evenly(pairwise, "task_family", 60)
-
-    # Single profile must include both elite coded and common surnames.
-    pilot_single = take_evenly(single, "surname_group", 60)
-
-    # Diagnostic must include both elite coded and common surnames.
+    pilot_equal = take_evenly(pairwise_equal, "task_family", 40)
+    pilot_forced = take_evenly(pairwise_forced, "task_family", 40)
+    pilot_single = take_evenly(single, "surname_group", 40)
     pilot_diag = take_evenly(diagnostic, "surname_group", 20)
 
-    pilot = pilot_pairwise + pilot_single + pilot_diag
+    pilot = pilot_equal + pilot_forced + pilot_single + pilot_diag
     write_jsonl(PILOT_PATH, pilot)
 
-    print(f"balanced pairwise: {len(pilot_pairwise)}")
+    print(f"balanced pairwise_equal: {len(pilot_equal)}")
+    print(f"balanced pairwise_forced: {len(pilot_forced)}")
     print(f"balanced single_profile: {len(pilot_single)}")
     print(f"balanced diagnostic: {len(pilot_diag)}")
     print(f"wrote balanced pilot: {len(pilot)} prompts to {PILOT_PATH}")
