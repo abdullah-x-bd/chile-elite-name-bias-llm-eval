@@ -13,7 +13,13 @@ The study separates two things.
 
 Status knowledge means the model recognizes that some Chilean surnames may carry elite or high status associations.
 
-Decision leakage means that recognition changes a model decision, score, shortlist, credibility judgment, or priority judgment.
+Decision leakage means that recognition changes a model decision, score, credibility judgment, or priority judgment.
+
+## Current language choice
+
+From this stage onward, new runs use Chilean Spanish.
+
+We moved to Chilean Spanish because local language may make Chilean surname signals more salient and better matched to the social context being tested.
 
 ## Name mapping
 
@@ -49,8 +55,6 @@ Common baseline surnames.
 - Morales
 - Flores
 
-The clean v0.2 design keeps first names neutral and repeats them across groups. This keeps the changed variable focused on the surname.
-
 ## v0.2 clean design
 
 The v0.2 design has four prompt banks.
@@ -85,9 +89,13 @@ The model is asked whether a surname carries a status association and whether th
 
 This is not the main bias outcome. It tests status knowledge and decision-use norms.
 
-## v0.2 result summary
+## v0.2 results
 
-Full v0.2 run on gpt-5.4.
+### English full v0.2 run
+
+Model.
+
+gpt-5.4
 
 | Prompt bank | Result |
 | --- | --- |
@@ -96,85 +104,64 @@ Full v0.2 run on gpt-5.4.
 | Single profile rating | Elite average 6.12, common average 6.12 |
 | Diagnostic | Model recognized elite coded surname signals but said surnames should not be used for decisions |
 
+### Chilean Spanish full v0.2 run
+
+Model.
+
+gpt-5.4-mini
+
+This run was added because Chilean Spanish might yield stronger surname status recognition or more decision leakage.
+
+| Prompt bank | Result |
+| --- | --- |
+| Equal allowed pairwise | 200 igual, 0 elite preference, 0 common preference |
+| Forced choice pairwise | 106 elite choices, 94 common choices, weak and not statistically strong |
+| Single profile rating | Elite average 6.05, common average 6.06 |
+| Diagnostic | Strong diagnostic recognition of elite coded surnames, but decision-use prompts still said no or ignore for merit |
+
 Working interpretation.
 
-The model shows status knowledge without visible decision leakage in the clean v0.2 setting.
+The model shows status knowledge, especially in Chilean Spanish, but clean v0.2 tasks do not show visible decision leakage.
 
-## Why v0.3 stress tests were added
+## One-at-a-time stress testing
 
-The v0.2 prompts may be too visible as a fairness test.
+The earlier plan had several stress tests at once. We are not using that combined design now.
 
-A strong model may identify that two people are identical except for the surname and answer equal because that is the safe answer.
+Stress tests will be added one by one.
 
-The v0.3 tests hide the surname manipulation inside normal ranking, scoring, shortlisting, and triage tasks.
+The first stress test is Chilean institutional framing.
 
-## v0.3 stress test design
+## Chilean institutional framing v0.3
 
-The v0.3 design uses paired prompt variants.
+This arm keeps the v0.2 structure but rewrites the task as local Chilean institutional evaluation in Chilean Spanish.
 
-The same candidate profiles appear in two versions.
+The point is to test whether more local institutional framing produces surname leakage where the cleaner v0.2 task did not.
 
-In one version, some profiles receive elite coded surnames.
+### Institutional pairwise equal
 
-In the paired version, surname assignments are swapped.
+The model compares two people in a Chilean institutional setting.
 
-This lets the analysis compare the same profile under different surname signals.
+The evidence is equal.
 
-### Stress test 1. Multi candidate shortlist
+The model can answer A, B, or igual.
 
-The model sees eight candidates and must shortlist three.
+### Institutional pairwise forced
 
-Metric.
+The model compares two people in a Chilean institutional setting.
 
-Does a profile become more likely to be shortlisted when it carries an elite coded surname?
+The evidence is equal.
 
-### Stress test 2. Score all candidates
+The model must answer A or B.
 
-The model sees eight candidates and scores each from 1 to 7.
+Each pair is counterbalanced.
 
-Metric.
+### Institutional single profile rating
 
-Does a profile receive a higher score when it carries an elite coded surname?
+The model sees one person inside a local institutional setting and rates the profile from 1 to 7.
 
-### Stress test 3. Ambiguous cases
+### Institutional diagnostic
 
-The model sees borderline candidates with small offsetting strengths and weaknesses.
-
-Metric.
-
-Does a profile receive more benefit of doubt when it carries an elite coded surname?
-
-### Stress test 4. Benefit of doubt
-
-The model handles legal aid, public service, and scholarship follow up tasks with plausible but incomplete files.
-
-Metric.
-
-Does the model select elite coded surnames more often for follow up?
-
-### Stress test 5. Spanish prompts
-
-The model receives selection and scoring tasks in Spanish.
-
-Metric.
-
-Does surname status matter more in a local language context?
-
-### Stress test 6. Chilean institutional framing
-
-The model receives more Chile specific settings such as Santiago programs and municipal service desks.
-
-Metric.
-
-Does local framing increase surname signal use?
-
-### Stress test 7. Delayed decision
-
-The model reads a longer packet before making the final shortlist.
-
-Metric.
-
-Does surname signal leak when the name is embedded inside a longer decision record?
+The model is asked whether a surname has status meaning in Chile and whether it should affect institutional decisions.
 
 ## Exclusions
 
