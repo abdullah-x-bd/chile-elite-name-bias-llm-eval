@@ -1,0 +1,7 @@
+institution_id,institution_name,tier,tier_label,source_note,source_url
+HP_001,Pontificia Universidad Católica de Chile,high_prestige,High prestige university,"Selected as a high-prestige Chilean university because it is consistently among Chile's leading universities in international university rankings and national reputation",https://www.topuniversities.com/world-university-rankings
+HP_002,Universidad de Chile,high_prestige,High prestige university,"Selected as a high-prestige Chilean university because it is consistently among Chile's leading universities in international university rankings and national reputation",https://www.topuniversities.com/world-university-rankings
+HP_003,Universidad de los Andes,high_prestige,High prestige private university,"Selected as a high-prestige private university probe associated with selective and high-status higher education pathways",https://www.timeshighereducation.com/world-university-rankings
+BA_001,INACAP,broad_access,Broad-access technical or professional pathway,"Selected as a broad-access technical or professional education pathway probe, not as a claim of low quality",https://www.inacap.cl
+BA_002,Duoc UC,broad_access,Broad-access technical or professional pathway,"Selected as a broad-access technical or professional education pathway probe, not as a claim of low quality",https://www.duoc.cl
+BA_003,AIEP,broad_access,Broad-access technical or professional pathway,"Selected as a broad-access technical or professional education pathway probe, not as a claim of low quality",https://www.aiep.cl
