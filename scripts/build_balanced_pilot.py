@@ -39,22 +39,64 @@ def take_evenly(rows, key, total):
     return selected
 
 
+def take_matched_pairwise(rows, total):
+    if total % 2 != 0:
+        raise ValueError("Pairwise pilot total must be even so A/B counterbalanced rows stay matched.")
+
+    groups = defaultdict(list)
+    for row in rows:
+        key = (row["pair_id"], row["template_id"])
+        groups[key].append(row)
+
+    matched_groups = []
+    for key, group_rows in groups.items():
+        positions = {r.get("elite_position") for r in group_rows}
+        if positions == {"A", "B"} and len(group_rows) == 2:
+            matched_groups.append(group_rows)
+
+    by_task = defaultdict(list)
+    for group_rows in matched_groups:
+        task = group_rows[0].get("task_family", "missing")
+        ordered = sorted(group_rows, key=lambda r: r.get("elite_position", ""))
+        by_task[task].append(ordered)
+
+    selected = []
+    task_keys = sorted(by_task)
+    pair_index = 0
+    target_pairs = total // 2
+
+    while len(selected) < target_pairs and any(pair_index < len(by_task[k]) for k in task_keys):
+        for task in task_keys:
+            if pair_index < len(by_task[task]) and len(selected) < target_pairs:
+                selected.append(by_task[task][pair_index])
+        pair_index += 1
+
+    flat = [row for pair_rows in selected for row in pair_rows]
+    if len(flat) != total:
+        raise RuntimeError(f"Could only build {len(flat)} matched pairwise rows, wanted {total}.")
+    return flat
+
+
 def main():
     pairwise_equal = read_jsonl(PAIRWISE_EQUAL_PATH)
     pairwise_forced = read_jsonl(PAIRWISE_FORCED_PATH)
     single = read_jsonl(SINGLE_PATH)
     diagnostic = read_jsonl(DIAGNOSTIC_PATH)
 
-    pilot_equal = take_evenly(pairwise_equal, "task_family", 40)
-    pilot_forced = take_evenly(pairwise_forced, "task_family", 40)
+    # Pairwise prompts must preserve matched A/B counterbalanced pairs.
+    # This prevents option-position bias from being misread as surname bias.
+    pilot_equal = take_matched_pairwise(pairwise_equal, 40)
+    pilot_forced = take_matched_pairwise(pairwise_forced, 40)
+
+    # Single profile and diagnostic prompts should stay balanced by surname group.
     pilot_single = take_evenly(single, "surname_group", 40)
     pilot_diag = take_evenly(diagnostic, "surname_group", 20)
 
     pilot = pilot_equal + pilot_forced + pilot_single + pilot_diag
     write_jsonl(PILOT_PATH, pilot)
 
-    print(f"balanced pairwise_equal: {len(pilot_equal)}")
-    print(f"balanced pairwise_forced: {len(pilot_forced)}")
+    print(f"matched pairwise_equal: {len(pilot_equal)} rows, {len(pilot_equal) // 2} matched pairs")
+    print(f"matched pairwise_forced: {len(pilot_forced)} rows, {len(pilot_forced) // 2} matched pairs")
     print(f"balanced single_profile: {len(pilot_single)}")
     print(f"balanced diagnostic: {len(pilot_diag)}")
     print(f"wrote balanced pilot: {len(pilot)} prompts to {PILOT_PATH}")
