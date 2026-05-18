@@ -31,6 +31,9 @@ jobs:
       - name: Generate prompt datasets
         run: python scripts/generate_prompts.py
 
+      - name: Build balanced pilot subset
+        run: python scripts/build_balanced_pilot.py
+
       - name: Run OpenAI pilot
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
