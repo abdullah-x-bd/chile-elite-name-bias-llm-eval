@@ -1,0 +1,46 @@
+name: Run OpenAI Pilot
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: OpenAI model to use
+        required: true
+        default: gpt-4.1-nano
+      run_id:
+        description: Run ID for this pilot
+        required: true
+        default: pilot_v0_1_openai_nano_001
+
+jobs:
+  run-pilot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate prompt datasets
+        run: python scripts/generate_prompts.py
+
+      - name: Run OpenAI pilot
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ github.event.inputs.model }}
+          RUN_ID: ${{ github.event.inputs.run_id }}
+        run: python scripts/run_pilot_openai.py
+
+      - name: Upload pilot outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: openai-pilot-outputs
+          path: outputs/pilot_openai_outputs.jsonl
+          if-no-files-found: error
