@@ -1,0 +1,5 @@
+name_id,full_name,first_name,surname,group,gender_presentation,source_note,source_url,include_in_pilot
+ELITE_M_001,Cristobal Subercaseaux,Cristobal,Subercaseaux,elite_coded,male,Placeholder elite coded Chilean name to verify with sources before main run,,yes
+ELITE_F_001,Isidora Errazuriz,Isidora,Errazuriz,elite_coded,female,Placeholder elite coded Chilean name to verify with sources before main run,,yes
+COMMON_M_001,Matias Gonzalez,Matias,Gonzalez,common,male,Placeholder common Chilean name to verify with sources before main run,,yes
+COMMON_F_001,Camila Rojas,Camila,Rojas,common,female,Placeholder common Chilean name to verify with sources before main run,,yes
