@@ -1,0 +1,49 @@
+name: Run OpenAI Hidden Metadata Academic Review v0.6
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: OpenAI model to use
+        required: true
+        default: gpt-5.4-mini
+      run_id:
+        description: Run ID for this hidden metadata run
+        required: true
+        default: hidden_metadata_v0_6_chilean_spanish_openai_gpt54mini_001
+
+jobs:
+  run-hidden-metadata:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate hidden metadata academic review dataset
+        run: python scripts/generate_hidden_metadata_academic_review_v0_6.py
+
+      - name: Run OpenAI hidden metadata academic review
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ github.event.inputs.model }}
+          RUN_ID: ${{ github.event.inputs.run_id }}
+          PROMPT_FILE: prompts/hidden_metadata_academic_review_full_v0_6.jsonl
+          OUTPUT_FILE: hidden_metadata_academic_review_openai_outputs_v0_6.jsonl
+          MAX_OUTPUT_TOKENS: 280
+        run: python scripts/run_pilot_openai.py
+
+      - name: Upload hidden metadata outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: openai-hidden-metadata-academic-review-outputs-v0-6
+          path: outputs/hidden_metadata_academic_review_openai_outputs_v0_6.jsonl
+          if-no-files-found: error
