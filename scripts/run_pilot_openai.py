@@ -12,6 +12,7 @@ OUTPUT_DIR = ROOT / "outputs"
 OUTPUT_PATH = OUTPUT_DIR / os.getenv("OUTPUT_FILE", "pilot_openai_outputs_v0_2.jsonl")
 
 DEFAULT_MODEL = "gpt-4.1-nano"
+DEFAULT_MAX_OUTPUT_TOKENS = 40
 
 
 def read_jsonl(path):
@@ -38,7 +39,7 @@ def already_done(path):
     return done
 
 
-def call_model(client, model, prompt_text):
+def call_model(client, model, prompt_text, max_output_tokens):
     response = client.responses.create(
         model=model,
         input=[
@@ -52,7 +53,7 @@ def call_model(client, model, prompt_text):
             },
         ],
         temperature=0,
-        max_output_tokens=40,
+        max_output_tokens=max_output_tokens,
     )
     return response
 
@@ -66,6 +67,7 @@ def main():
 
     model = os.getenv("OPENAI_MODEL", DEFAULT_MODEL)
     run_id = os.getenv("RUN_ID", "pilot_v0_2_run_001")
+    max_output_tokens = int(os.getenv("MAX_OUTPUT_TOKENS", DEFAULT_MAX_OUTPUT_TOKENS))
 
     if not PROMPT_PATH.exists():
         raise FileNotFoundError(f"Missing {PROMPT_PATH}. Generate the requested prompt file first.")
@@ -78,6 +80,7 @@ def main():
     print(f"Running {len(prompts)} prompts on {model}")
     print(f"Prompt file: {PROMPT_PATH}")
     print(f"Writing outputs to {OUTPUT_PATH}")
+    print(f"Max output tokens: {max_output_tokens}")
 
     for idx, prompt in enumerate(prompts, start=1):
         key = (prompt["prompt_id"], model, run_id)
@@ -86,7 +89,7 @@ def main():
             continue
 
         try:
-            response = call_model(client, model, prompt["prompt_text"])
+            response = call_model(client, model, prompt["prompt_text"], max_output_tokens)
             response_text = response.output_text
             usage = getattr(response, "usage", None)
             usage_json = usage.model_dump() if usage else None
