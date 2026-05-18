@@ -1,0 +1,49 @@
+name: Run OpenAI Academic Focused v0.5
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: OpenAI model to use
+        required: true
+        default: gpt-5.4-mini
+      run_id:
+        description: Run ID for this academic focused run
+        required: true
+        default: academic_focused_v0_5_chilean_spanish_openai_gpt54mini_001
+
+jobs:
+  run-academic-focused:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate academic focused dataset
+        run: python scripts/generate_academic_focused_single_profile_v0_5.py
+
+      - name: Run OpenAI academic focused single profile
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ github.event.inputs.model }}
+          RUN_ID: ${{ github.event.inputs.run_id }}
+          PROMPT_FILE: prompts/academic_focused_single_profile_chilean_spanish_v0_5.jsonl
+          OUTPUT_FILE: academic_focused_openai_outputs_v0_5.jsonl
+          MAX_OUTPUT_TOKENS: 40
+        run: python scripts/run_pilot_openai.py
+
+      - name: Upload academic focused outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: openai-academic-focused-outputs-v0-5
+          path: outputs/academic_focused_openai_outputs_v0_5.jsonl
+          if-no-files-found: error
