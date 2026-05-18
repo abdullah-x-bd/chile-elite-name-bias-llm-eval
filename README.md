@@ -2,16 +2,17 @@
 
 A Chilean class bias audit of LLM judgments.
 
-This repository is the working home for a Technical AI Safety Project Sprint study. The project tests whether frontier AI models make different judgments about people when surname signals change.
+This repository is the working home for a Technical AI Safety Project Sprint study. The project tests whether frontier AI models use Chilean elite coded surnames as hidden status signals when judging people in high stakes tasks.
 
 ## Research question
 
-Do frontier AI models use Chilean elite coded surnames as hidden status signals when judging people in high stakes tasks?
+Do frontier AI models know that some Chilean surnames carry elite status associations, and does that knowledge leak into decisions, scores, credibility judgments, or priority judgments?
 
-The project now separates two questions.
+## Current language choice
 
-1. Does the model know that some Chilean surnames carry elite or high status associations?
-2. Does that knowledge leak into decisions, scores, shortlists, credibility judgments, or priority judgments?
+From this stage onward, new runs use Chilean Spanish.
+
+We moved to Chilean Spanish because local language may make Chilean surname signals more salient than English prompts.
 
 ## Why this matters
 
@@ -53,75 +54,87 @@ Main common baseline surnames.
 
 ## What we have run so far
 
-### v0.2 clean run
+### English v0.2 clean run
 
-We ran the full v0.2 clean dataset on `gpt-5.4`.
+Model.
+
+`gpt-5.4`
 
 Total prompts.
 
 700
-
-Prompt banks.
-
-| Bank | Count | Purpose |
-| --- | ---: | --- |
-| Equal allowed pairwise | 200 | Test whether the model chooses equal when two people are identical except surname |
-| Forced choice pairwise | 200 | Test which way the model leans when it must choose A or B |
-| Single profile rating | 200 | Test whether one profile gets a different 1 to 7 rating when the surname changes |
-| Diagnostic | 100 | Test whether the model recognizes surname status signals and says they should be ignored in decisions |
-
-### v0.2 result summary
 
 | Bank | Result |
 | --- | --- |
 | Equal allowed pairwise | 200 equal, 0 elite preference, 0 common preference |
 | Forced choice pairwise | Strong A position bias, no elite preference after matched counterbalancing |
 | Single profile rating | Elite average 6.12, common average 6.12 |
-| Diagnostic | The model recognized elite coded surname signals, but said surnames should not be used for decisions |
+| Diagnostic | Model recognized elite coded surname signals but said surnames should not be used for decisions |
 
 Working interpretation.
 
-`gpt-5.4` shows status knowledge without visible decision leakage in the clean v0.2 setting.
+The model showed status knowledge without visible decision leakage in the clean English v0.2 setting.
 
-This is useful, but not enough. The clean pairwise structure may be too visible as a fairness test.
+### Chilean Spanish v0.2 clean run
+
+Model.
+
+`gpt-5.4-mini`
+
+Total prompts.
+
+700
+
+We ran this because Chilean Spanish might make the Chilean surname signal stronger.
+
+| Bank | Result |
+| --- | --- |
+| Equal allowed pairwise | 200 igual, 0 elite preference, 0 common preference |
+| Forced choice pairwise | 106 elite choices, 94 common choices, weak and not statistically strong |
+| Single profile rating | Elite average 6.05, common average 6.06 |
+| Diagnostic | Strong diagnostic recognition of elite coded surnames, but decision-use prompts still said no or ignore for merit |
+
+Working interpretation.
+
+Chilean Spanish increased diagnostic recognition, but did not create visible decision leakage in equal allowed or single profile tasks. Forced choice showed a small elite lean, but the result was weak and still mixed with position bias.
 
 ## What we are doing now
 
-We are adding v0.3 stress tests.
+We are no longer running all stress tests together.
 
-The aim is to test whether surname signals leak when the task looks like a normal institutional workflow rather than an obvious fairness comparison.
+We will add stress tests one by one.
 
-The v0.3 tests hide the surname manipulation inside larger ranking, scoring, shortlisting, and triage tasks.
+The first one is Chilean institutional framing.
 
-## v0.3 stress tests
+This keeps the same basic v0.2 structure, but rewrites the prompts as local Chilean institutional workflows in Chilean Spanish.
 
-Seven stress test families have been added.
+## Chilean institutional framing v0.3
 
-| Stress test | What it does |
-| --- | --- |
-| Multi candidate shortlist | Gives eight candidates and asks the model to shortlist three |
-| Score all candidates | Gives eight candidates and asks for 1 to 7 scores for all |
-| Ambiguous cases | Uses borderline files with small offsetting strengths and weaknesses |
-| Benefit of doubt | Tests legal, welfare, and scholarship follow up under incomplete but plausible files |
-| Spanish prompts | Runs selection and scoring tasks in Spanish |
-| Chilean institutional framing | Uses more local Chilean institutional settings |
-| Delayed decision | Embeds the names inside a longer packet before asking for a shortlist |
+The institutional framing run includes:
 
-Each stress test uses paired variants.
+| Bank | Count |
+| --- | ---: |
+| Institutional pairwise equal | 200 |
+| Institutional pairwise forced | 200 |
+| Institutional single profile rating | 200 |
+| Institutional diagnostic | 80 |
 
-The profiles stay the same.
+Total prompts.
 
-Surname assignments are swapped.
+680
 
-The analysis compares the same profile under different surname signals.
+The prompts use settings such as:
 
-## Planned model set
+- Una universidad chilena con sede en Santiago
+- Un comité chileno de becas de políticas públicas
+- Una organización chilena que contrata practicantes de análisis
+- Un programa chileno de liderazgo cívico
+- Una clínica jurídica chilena en Santiago
+- Una oficina municipal chilena
 
-We have already run OpenAI `gpt-5.4` on the full v0.2 clean dataset.
+Main question.
 
-The next planned run is `gpt-5.4` on the v0.3 stress test dataset.
-
-If budget allows, later runs may include a cheaper OpenAI model and one non OpenAI model.
+Does local Chilean institutional framing produce surname decision leakage where clean Chilean Spanish v0.2 did not?
 
 ## Budget
 
@@ -134,7 +147,7 @@ The budget is reserved mainly for API calls. Hosting remains free through GitHub
 ```text
 README.md
 METHOD.md
-STRESS_TESTS.md
+INSTITUTIONAL_FRAMING.md
 BUDGET.md
 DATA_DICTIONARY.md
 SOURCES.md
@@ -142,7 +155,8 @@ NAMESET_LOCK.md
 data/name_sets.csv
 data/name_sets_expanded.csv
 scripts/generate_prompts.py
-scripts/generate_stress_tests.py
+scripts/generate_chilean_spanish_full_v0_2.py
+scripts/generate_chilean_institutional_framing_v0_3.py
 scripts/build_full_v0_2.py
 scripts/run_pilot_openai.py
 scripts/score_outputs.py
