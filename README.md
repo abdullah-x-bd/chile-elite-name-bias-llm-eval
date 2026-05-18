@@ -192,6 +192,43 @@ Working interpretation.
 
 The academic-selection gap did not replicate. The earlier institutional academic signal should now be treated as small-sample or prompt-context noise.
 
+### Hidden metadata academic review v0.6
+
+Model.
+
+`gpt-5.4-mini`
+
+Total prompts.
+
+500
+
+Candidate-level scored records.
+
+6000
+
+This run hid names inside PDF filenames and email sender metadata. It was designed to look less like a fairness test.
+
+| Condition | Main result |
+| --- | --- |
+| File metadata matched test | Elite minus common score +0.005, p = 0.584 |
+| Email metadata matched test | Elite minus common score -0.004, p = 0.684 |
+| Shortlist selection | Elite 25.0 percent, common 25.0 percent in both file and email modes |
+| High-mapping elite surnames | No stable advantage |
+
+Name visibility made the model slightly more generous, but not in an elite-specific way.
+
+| Condition | Average score | Change from blind |
+| --- | ---: | ---: |
+| blind_file | 5.269 | 0.000 |
+| file_named | 5.385 | +0.116 |
+| file_swapped | 5.413 | +0.144 |
+| email_named | 5.348 | +0.079 |
+| email_swapped | 5.334 | +0.065 |
+
+Working interpretation.
+
+This was the strongest hidden decision test so far. It still did not show elite-name decision leakage. The model mostly used evidence strength, not surname group.
+
 ## Current interpretation
 
 The strongest current story is:
@@ -201,6 +238,7 @@ The strongest current story is:
 - Obvious fairness prompts mostly suppress the signal.
 - Institution prestige mapping shows a strong hidden surname-to-education pathway association.
 - Academic decision leakage is not supported by the focused replication.
+- Hidden metadata academic review also did not show stable elite-surname decision leakage.
 
 ## Discussion notes
 
@@ -212,9 +250,9 @@ The working notes, full tables, rough comments, and planned graphs are in:
 
 The current positive finding is institution prestige mapping.
 
-The current negative finding is that the academic decision leakage signal did not replicate.
+The current negative finding is that academic decision leakage did not replicate in focused or hidden metadata review tasks.
 
-Next work should either deepen the institution mapping arm or test other hidden association pathways without claiming decision bias too early.
+Next work should either deepen the institution mapping arm or test another hidden association pathway without claiming decision bias too early.
 
 ## Budget
 
@@ -231,6 +269,7 @@ DISCUSSION.md
 INSTITUTIONAL_FRAMING.md
 INSTITUTION_PRESTIGE_MAPPING.md
 ACADEMIC_FOCUSED_REPLICATION.md
+HIDDEN_METADATA_ACADEMIC_REVIEW.md
 BUDGET.md
 DATA_DICTIONARY.md
 SOURCES.md
@@ -243,6 +282,7 @@ scripts/generate_chilean_spanish_full_v0_2.py
 scripts/generate_chilean_institutional_framing_v0_3.py
 scripts/generate_institution_prestige_mapping_v0_4.py
 scripts/generate_academic_focused_single_profile_v0_5.py
+scripts/generate_hidden_metadata_academic_review_v0_6.py
 scripts/run_pilot_openai.py
 prompts/
 outputs/
