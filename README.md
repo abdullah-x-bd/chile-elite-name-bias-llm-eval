@@ -107,9 +107,7 @@ Total prompts.
 | Institutional single profile rating | Elite average 4.27, common average 4.07 |
 | Institutional diagnostic | Strong diagnostic recognition of elite coded surnames, but decision-use prompts still said no or ignore for merit |
 
-Most important detail.
-
-The single-profile rating gap was concentrated in academic selection.
+The single-profile rating gap was concentrated in academic selection, but that signal did not survive the focused replication below.
 
 | Task family | Elite avg | Common avg | Difference |
 | --- | ---: | ---: | ---: |
@@ -164,6 +162,36 @@ Working interpretation.
 
 This is not a decision bias result. It is a strong institutional mapping result. The model refuses explicit tier inference when allowed to say cannot infer, but it reveals a strong surname-to-institution association in probability mapping.
 
+### Academic focused replication v0.5
+
+Model.
+
+`gpt-5.4-mini`
+
+Total prompts.
+
+2000
+
+This run tested whether the academic-selection signal from institutional framing repeats with a much larger single-profile academic dataset.
+
+| Group | Count | Average rating |
+| --- | ---: | ---: |
+| Elite coded | 1000 | 6.420 |
+| Common baseline | 1000 | 6.418 |
+
+Difference.
+
+| Metric | Value |
+| --- | ---: |
+| Elite minus common | +0.002 |
+| Welch t-test | p = 0.928 |
+| Mann-Whitney | p = 0.928 |
+| Cohen's d | 0.004 |
+
+Working interpretation.
+
+The academic-selection gap did not replicate. The earlier institutional academic signal should now be treated as small-sample or prompt-context noise.
+
 ## Current interpretation
 
 The strongest current story is:
@@ -172,7 +200,7 @@ The strongest current story is:
 - Chilean Spanish makes that recognition cleaner.
 - Obvious fairness prompts mostly suppress the signal.
 - Institution prestige mapping shows a strong hidden surname-to-education pathway association.
-- Institutional academic single-profile ratings show a suggestive elite-coded advantage that is being tested now.
+- Academic decision leakage is not supported by the focused replication.
 
 ## Discussion notes
 
@@ -182,9 +210,11 @@ The working notes, full tables, rough comments, and planned graphs are in:
 
 ## What we are doing next
 
-The academic focused replication is running.
+The current positive finding is institution prestige mapping.
 
-It tests whether the institutional academic selection gap repeats with a larger single-profile Chilean Spanish run.
+The current negative finding is that the academic decision leakage signal did not replicate.
+
+Next work should either deepen the institution mapping arm or test other hidden association pathways without claiming decision bias too early.
 
 ## Budget
 
