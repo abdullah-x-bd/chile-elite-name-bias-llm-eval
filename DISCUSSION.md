@@ -12,7 +12,7 @@ A Chilean class-coded surname audit of LLM judgments.
 
 ## Better current framing
 
-Status knowledge, institutional mapping, and decision leakage.
+Status knowledge and institutional mapping without stable decision leakage.
 
 A Chilean surname audit of frontier AI judgments.
 
@@ -42,13 +42,13 @@ That was necessary, but it also made the fairness structure visible. A strong mo
 
 So the project moved in stages.
 
-| Stage | Why we did it |
-| --- | --- |
-| English v0.2 clean run | Start with a clean controlled baseline |
-| Chilean Spanish v0.2 clean run | Test whether local language makes the surname signal stronger |
-| Chilean institutional framing v0.3 | Test whether local institutional framing creates more natural decision pressure |
-| Institution prestige mapping v0.4 | Test whether names map to institutional prestige even when no decision is being made |
-| Academic focused v0.5 | Replicate the one signal that appeared in academic single-profile ratings |
+| Stage | Why we did it | Result |
+| --- | --- | --- |
+| English v0.2 clean run | Start with a clean controlled baseline | Status knowledge, no decision leakage |
+| Chilean Spanish v0.2 clean run | Test whether local language makes the surname signal stronger | Stronger diagnostic recognition, still no rating leakage |
+| Chilean institutional framing v0.3 | Test whether local institutional framing creates more natural decision pressure | Suggestive academic rating gap |
+| Institution prestige mapping v0.4 | Test whether names map to institutional prestige even when no decision is being made | Strong mapping signal |
+| Academic focused v0.5 | Replicate the academic rating gap | Gap did not replicate |
 
 From this stage onward, new prompt runs use Chilean Spanish.
 
@@ -114,7 +114,7 @@ The model sees one person and gives a rating from 1 to 7.
 
 The analysis compares ratings across surname groups.
 
-This became important because institutional framing produced the first suggestive rating signal.
+This seemed promising after the institutional framing run, but the focused replication did not confirm the effect.
 
 ### Diagnostic
 
@@ -128,7 +128,7 @@ This is not a decision task.
 
 It asks whether the model maps Chilean names to high prestige or broad access educational institutions.
 
-This can reveal a hidden association layer even when the model refuses to use surname information in merit judgments.
+This revealed the strongest positive finding so far.
 
 ## Runs so far
 
@@ -138,7 +138,7 @@ This can reveal a hidden association layer even when the model refuses to use su
 | Clean v0.2 | gpt-5.4-mini | Chilean Spanish | 700 | Test whether local language increases status recognition or leakage |
 | Institutional v0.3 | gpt-5.4-mini | Chilean Spanish | 680 | Test whether local institutional framing creates more subtle leakage |
 | Institution prestige mapping v0.4 | gpt-5.4-mini | Chilean Spanish | 600 | Test whether names map to institutional prestige |
-| Academic focused v0.5 | gpt-5.4-mini | Chilean Spanish | 2000 | Running, meant to replicate the academic rating gap |
+| Academic focused v0.5 | gpt-5.4-mini | Chilean Spanish | 2000 | Replicate the academic rating gap |
 
 ## Run health
 
@@ -148,6 +148,7 @@ This can reveal a hidden association layer even when the model refuses to use su
 | Chilean Spanish clean v0.2, gpt-5.4-mini | 0 | 0 | 0 | 89,847 |
 | Institutional Chilean Spanish v0.3, gpt-5.4-mini | 0 | 0 | 0 | 92,825 |
 | Institution prestige mapping v0.4, gpt-5.4-mini | 0 | 0 | 0 | 99,006 |
+| Academic focused v0.5, gpt-5.4-mini | 0 | 0 | 0 | 293,618 |
 
 ## English clean v0.2 results
 
@@ -420,7 +421,7 @@ Treat this as suggestive, not final.
 
 Rough comment.
 
-This is the first real signal worth following. It is not broad. It is concentrated in academic selection. The next run should focus on institutional academic single-profile ratings and expand that slice.
+This looked like the first real decision leakage signal. The follow-up academic focused v0.5 run did not replicate it, so we now treat this as likely small-sample or prompt-context noise.
 
 ### Diagnostic association
 
@@ -445,7 +446,7 @@ Decision use.
 
 Rough comment.
 
-The model strongly knows the elite surname signal. It also says the signal should not be used. Yet the academic single-profile ratings may show leakage under institutional framing.
+The model strongly knows the elite surname signal. It also says the signal should not be used. The possible academic rating leakage did not hold under replication.
 
 ## Institution prestige mapping v0.4 results
 
@@ -607,7 +608,98 @@ The model carries a Chilean surname-to-institution association. It refuses expli
 
 This strengthens the study because it links diagnostic knowledge to a more specific social pathway.
 
-## Updated main running interpretation
+## Academic focused replication v0.5 results
+
+Model.
+
+gpt-5.4-mini
+
+Language.
+
+Chilean Spanish
+
+Prompt count.
+
+2000
+
+Why we ran it.
+
+The institutional v0.3 run showed a possible rating leakage signal in academic selection. The focused run tested that signal at larger scale.
+
+### Run health
+
+| Item | Result |
+| --- | ---: |
+| Total prompts | 2000 |
+| Elite-coded prompts | 1000 |
+| Common baseline prompts | 1000 |
+| API errors | 0 |
+| JSON parse failures | 0 |
+| Total tokens | 293,618 |
+
+### Main result
+
+The academic focused run did not replicate the earlier academic-selection gap.
+
+| Group | Count | Average rating |
+| --- | ---: | ---: |
+| Elite coded | 1000 | 6.420 |
+| Common baseline | 1000 | 6.418 |
+
+Difference.
+
+| Metric | Value |
+| --- | ---: |
+| Elite minus common | +0.002 |
+| Welch t-test | p = 0.928 |
+| Mann-Whitney | p = 0.928 |
+| Cohen's d | 0.004 |
+
+### Rating distribution
+
+| Group | Rating 6 | Rating 7 |
+| --- | ---: | ---: |
+| Elite coded | 580 | 420 |
+| Common baseline | 582 | 418 |
+
+Rough comment.
+
+The entire difference was two extra 7s for elite-coded surnames across 1000 prompts.
+
+That is not meaningful.
+
+### By academic context
+
+| Context | Elite avg | Common avg | Difference |
+| --- | ---: | ---: | ---: |
+| Research assistant | 6.105 | 6.090 | +0.015 |
+| Research project support | 6.000 | 6.000 | 0.000 |
+| Teaching assistant | 7.000 | 7.000 | 0.000 |
+| Academic mentoring | 6.995 | 7.000 | -0.005 |
+| Short academic internship | 6.000 | 6.000 | 0.000 |
+
+Rough comment.
+
+The model mostly responded to the academic context wording. Some contexts almost always got 6. Some contexts almost always got 7. Surname barely moved anything.
+
+### By surname examples
+
+| Surname | Group | Average |
+| --- | --- | ---: |
+| Schmidt | Elite | 6.45 |
+| Vial | Elite | 6.44 |
+| García-Huidobro | Elite | 6.40 |
+| Larraín | Elite | 6.40 |
+| Soto | Common | 6.45 |
+| Flores | Common | 6.43 |
+| González | Common | 6.40 |
+| Pérez | Common | 6.40 |
+
+Rough comment.
+
+No stable elite advantage. The institution prestige mapping signal did not translate into academic rating differences in this focused test.
+
+## Updated main interpretation
 
 The pattern is not simple elite-name preference.
 
@@ -617,8 +709,8 @@ The cleaner story is this.
 2. Chilean Spanish makes that knowledge cleaner and stronger.
 3. Obvious fairness prompts usually suppress the signal.
 4. Institution prestige mapping reveals a strong hidden surname-to-education pathway association.
-5. Institutional single-profile academic ratings showed a suggestive elite-coded advantage.
-6. The academic focused run will test whether that decision leakage signal repeats.
+5. The earlier academic rating gap did not replicate.
+6. We do not currently have stable evidence of academic decision leakage.
 
 ## What helped
 
@@ -628,11 +720,11 @@ Removing explanations helped keep the output clean and reduced rationalization.
 
 Counterbalancing saved the forced-choice arm from being misleading.
 
-Single-profile ratings were more useful than pairwise comparisons for subtle leakage.
+Single-profile ratings were more useful than pairwise comparisons for detecting possible subtle leakage, but the focused run did not confirm leakage.
 
-Institutional framing helped reveal a possible signal that the clean prompts missed.
+Institution prestige mapping gave us the strongest mechanism signal.
 
-Institution prestige mapping gave us a stronger mechanism signal than the direct decision tasks.
+The academic focused run helped by preventing overclaiming. It killed a tempting but weak result.
 
 ## What did not help much
 
@@ -640,13 +732,15 @@ Forced choice did not help much because the model has strong A-position bias.
 
 Equal allowed pairwise is too easy for strong models, though it is still a useful baseline.
 
-The first broad stress-test attempt was too messy. The scoring outputs were truncated and the test families were too many at once. We dropped that route and moved to one stress test at a time.
+The first broad stress-test attempt was too messy. The scoring outputs were truncated and the test families were too many at once. We dropped that route and moved to one test at a time.
 
 The institution choice arm had a ceiling problem because the model chose high-prestige institutions for every name.
 
 The tier choice arm was too safe because the model chose cannot infer for every name.
 
 The probability distribution arm was the most useful part of institution prestige mapping.
+
+The academic institutional signal did not help as a final claim because it did not replicate.
 
 ## Needed figures
 
@@ -657,14 +751,14 @@ These are the figures we should make for the report or webpage.
 ```mermaid
 xychart-beta
     title "Single profile average rating by run"
-    x-axis ["English elite", "English common", "Spanish elite", "Spanish common", "Institutional elite", "Institutional common"]
+    x-axis ["English elite", "English common", "Spanish elite", "Spanish common", "Institutional elite", "Institutional common", "Academic elite", "Academic common"]
     y-axis "Average rating" 0 --> 7
-    bar [6.12, 6.12, 6.05, 6.06, 4.27, 4.07]
+    bar [6.12, 6.12, 6.05, 6.06, 4.27, 4.07, 6.42, 6.418]
 ```
 
 Why this matters.
 
-It shows that the first visible rating gap appears only in the institutional Chilean Spanish run.
+It shows that the institutional gap did not survive focused academic replication.
 
 ### Figure 2. Diagnostic status recognition
 
@@ -692,7 +786,7 @@ xychart-beta
 
 Why this matters.
 
-It shows that the signal is concentrated in academic selection.
+It shows the signal that looked promising before replication.
 
 ### Figure 4. Forced choice position bias
 
@@ -720,7 +814,7 @@ xychart-beta
 
 Why this matters.
 
-It shows the strongest current social association result.
+It shows the strongest current positive result.
 
 ### Figure 6. Institution mapping choice split
 
@@ -748,19 +842,33 @@ xychart-beta
 
 Why this matters.
 
-It shows that the elite-coded group is not uniform. Some names carry the signal much more strongly.
+It shows that the elite-coded group is not uniform. Some names carry the mapping signal much more strongly.
+
+### Figure 8. Academic focused replication by context
+
+```mermaid
+xychart-beta
+    title "Academic focused replication by context"
+    x-axis ["RA elite", "RA common", "Project elite", "Project common", "TA elite", "TA common", "Mentor elite", "Mentor common", "Intern elite", "Intern common"]
+    y-axis "Average rating" 0 --> 7
+    bar [6.105, 6.090, 6.000, 6.000, 7.000, 7.000, 6.995, 7.000, 6.000, 6.000]
+```
+
+Why this matters.
+
+It shows that the focused academic run was driven by context wording, not surname group.
 
 ## Candidate paper framing
 
 Possible title.
 
-Status Knowledge Without Obvious Decision Leakage?
+Status Knowledge Without Stable Decision Leakage
 
 A Chilean Surname Audit of Frontier AI Judgments
 
 Another title.
 
-Names, Status, and Institutional Memory.
+Names, Status, and Institutional Memory
 
 A Chilean Surname Audit of Frontier AI Models
 
@@ -769,51 +877,9 @@ The story.
 1. The model knows elite-coded Chilean surnames.
 2. Clean pairwise tests show almost no decision leakage.
 3. Chilean Spanish strengthens diagnostic recognition.
-4. Local institutional framing produces a suggestive academic rating gap.
-5. Institution prestige mapping shows a strong surname-to-education pathway association.
-6. The academic focused run now tests whether the rating leakage repeats.
-
-## Next run
-
-Academic focused replication is running.
-
-Language.
-
-Chilean Spanish.
-
-Model.
-
-gpt-5.4-mini.
-
-Design.
-
-Only academic selection.
-
-Only single-profile ratings.
-
-20 first names.
-
-5 academic contexts.
-
-10 elite coded surnames.
-
-10 common baseline surnames.
-
-No explanation.
-
-Rating 1 to 7.
-
-Total prompts.
-
-2000.
-
-Goal.
-
-Check whether the +1.10 academic selection gap repeats with more prompts.
-
-If it repeats, it becomes the main decision leakage finding.
-
-If it disappears, the institutional result was probably generator noise.
+4. Institution prestige mapping shows a strong surname-to-education pathway association.
+5. A suggestive academic rating gap appeared once but did not replicate.
+6. The study should claim social mapping, not stable decision bias.
 
 ## Current rough conclusion
 
@@ -821,4 +887,4 @@ The study is now moving away from a broad claim that models prefer elite names.
 
 The better claim is more careful and more interesting.
 
-In these runs, models strongly recognize Chilean elite surname signals. They suppress that signal in obvious fairness tests. Institution prestige mapping shows a strong hidden association between elite-coded surnames and high-prestige educational pathways. Under Chilean institutional framing, single-profile academic ratings show a suggestive elite-coded advantage that needs targeted replication.
+In these runs, models strongly recognize Chilean elite surname signals. They suppress that signal in obvious fairness tests. Institution prestige mapping shows a strong hidden association between elite-coded surnames and high-prestige educational pathways. But this did not translate into stable academic rating differences in the focused replication.
