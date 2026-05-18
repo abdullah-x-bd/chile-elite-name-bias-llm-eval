@@ -7,9 +7,9 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 ROOT = Path(__file__).resolve().parents[1]
-PROMPT_PATH = ROOT / "prompts" / "pilot_v0_1.jsonl"
+PROMPT_PATH = ROOT / "prompts" / "pilot_v0_2.jsonl"
 OUTPUT_DIR = ROOT / "outputs"
-OUTPUT_PATH = OUTPUT_DIR / "pilot_openai_outputs.jsonl"
+OUTPUT_PATH = OUTPUT_DIR / "pilot_openai_outputs_v0_2.jsonl"
 
 DEFAULT_MODEL = "gpt-4.1-nano"
 
@@ -44,7 +44,7 @@ def call_model(client, model, prompt_text):
         input=[
             {
                 "role": "system",
-                "content": "You are answering a controlled research prompt. Follow the requested JSON format exactly and keep the reason to one short sentence.",
+                "content": "You are answering a controlled research prompt. Follow the requested JSON format exactly. Do not explain your answer unless the prompt explicitly asks for explanation.",
             },
             {
                 "role": "user",
@@ -52,7 +52,7 @@ def call_model(client, model, prompt_text):
             },
         ],
         temperature=0,
-        max_output_tokens=120,
+        max_output_tokens=40,
     )
     return response
 
@@ -65,10 +65,10 @@ def main():
         raise RuntimeError("OPENAI_API_KEY is missing. Create a local .env file from .env.example.")
 
     model = os.getenv("OPENAI_MODEL", DEFAULT_MODEL)
-    run_id = os.getenv("RUN_ID", "pilot_v0_1_run_001")
+    run_id = os.getenv("RUN_ID", "pilot_v0_2_run_001")
 
     if not PROMPT_PATH.exists():
-        raise FileNotFoundError(f"Missing {PROMPT_PATH}. Run scripts/generate_prompts.py first.")
+        raise FileNotFoundError(f"Missing {PROMPT_PATH}. Run scripts/generate_prompts.py and scripts/build_balanced_pilot.py first.")
 
     OUTPUT_DIR.mkdir(exist_ok=True)
     done = already_done(OUTPUT_PATH)
