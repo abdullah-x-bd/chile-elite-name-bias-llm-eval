@@ -1,0 +1,49 @@
+name: Run OpenAI Institution Prestige Mapping v0.4
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: OpenAI model to use
+        required: true
+        default: gpt-5.4-mini
+      run_id:
+        description: Run ID for this institution mapping run
+        required: true
+        default: institution_prestige_v0_4_chilean_spanish_openai_gpt54mini_001
+
+jobs:
+  run-institution-prestige:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate institution prestige mapping dataset
+        run: python scripts/generate_institution_prestige_mapping_v0_4.py
+
+      - name: Run OpenAI institution prestige mapping
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ github.event.inputs.model }}
+          RUN_ID: ${{ github.event.inputs.run_id }}
+          PROMPT_FILE: prompts/institution_prestige_mapping_full_v0_4.jsonl
+          OUTPUT_FILE: institution_prestige_mapping_openai_outputs_v0_4.jsonl
+          MAX_OUTPUT_TOKENS: 120
+        run: python scripts/run_pilot_openai.py
+
+      - name: Upload institution prestige mapping outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: openai-institution-prestige-mapping-outputs-v0-4
+          path: outputs/institution_prestige_mapping_openai_outputs_v0_4.jsonl
+          if-no-files-found: error
