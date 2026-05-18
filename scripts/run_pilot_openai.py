@@ -7,9 +7,9 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 ROOT = Path(__file__).resolve().parents[1]
-PROMPT_PATH = ROOT / "prompts" / "pilot_v0_2.jsonl"
+PROMPT_PATH = ROOT / os.getenv("PROMPT_FILE", "prompts/pilot_v0_2.jsonl")
 OUTPUT_DIR = ROOT / "outputs"
-OUTPUT_PATH = OUTPUT_DIR / "pilot_openai_outputs_v0_2.jsonl"
+OUTPUT_PATH = OUTPUT_DIR / os.getenv("OUTPUT_FILE", "pilot_openai_outputs_v0_2.jsonl")
 
 DEFAULT_MODEL = "gpt-4.1-nano"
 
@@ -68,14 +68,15 @@ def main():
     run_id = os.getenv("RUN_ID", "pilot_v0_2_run_001")
 
     if not PROMPT_PATH.exists():
-        raise FileNotFoundError(f"Missing {PROMPT_PATH}. Run scripts/generate_prompts.py and scripts/build_balanced_pilot.py first.")
+        raise FileNotFoundError(f"Missing {PROMPT_PATH}. Generate the requested prompt file first.")
 
     OUTPUT_DIR.mkdir(exist_ok=True)
     done = already_done(OUTPUT_PATH)
     client = OpenAI(api_key=api_key)
 
     prompts = list(read_jsonl(PROMPT_PATH))
-    print(f"Running {len(prompts)} pilot prompts on {model}")
+    print(f"Running {len(prompts)} prompts on {model}")
+    print(f"Prompt file: {PROMPT_PATH}")
     print(f"Writing outputs to {OUTPUT_PATH}")
 
     for idx, prompt in enumerate(prompts, start=1):
@@ -117,7 +118,7 @@ def main():
             print(f"{idx}/{len(prompts)} {prompt['prompt_id']} error: {exc}")
             time.sleep(1)
 
-    print("Pilot run finished.")
+    print("Run finished.")
 
 
 if __name__ == "__main__":
