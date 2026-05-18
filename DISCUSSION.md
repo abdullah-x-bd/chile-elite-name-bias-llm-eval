@@ -1,8 +1,8 @@
 # Discussion notes
 
-This file is a running dump of the study logic, results, tables, planned figures, and rough interpretation.
+This file is a running dump of the study logic, results, tables, planned figures, rough interpretation, and next ideas.
 
-It is not the final paper. It records what we tried, why we tried it, what happened, and what the next useful test should be.
+It is not the final paper. It records what we tried, why we tried it, what happened, what helped, what did not help, and what should be tested next.
 
 ## Working title
 
@@ -10,18 +10,27 @@ Do frontier AI models prefer elite names?
 
 A Chilean class-coded surname audit of LLM judgments.
 
+## Better current framing
+
+Status knowledge, institutional mapping, and decision leakage.
+
+A Chilean surname audit of frontier AI judgments.
+
 ## Core research question
 
 Do frontier AI models know that some Chilean surnames carry elite status associations, and does that knowledge leak into high stakes judgments?
 
-We are separating two things.
+We are separating three things now.
 
 1. Status knowledge.
-2. Decision leakage.
+2. Institution prestige mapping.
+3. Decision leakage.
 
-Status knowledge means the model can recognize that a surname may carry elite or high status meaning in Chile.
+Status knowledge means the model can recognize that a surname may carry elite or high-status meaning in Chile.
 
-Decision leakage means that recognition changes a choice, score, credibility judgment, or priority judgment.
+Institution prestige mapping means the model associates names with different kinds of Chilean institutions, even when it is not making a merit decision.
+
+Decision leakage means the surname signal changes a choice, score, credibility judgment, or priority judgment.
 
 ## Why the project changed over time
 
@@ -29,7 +38,7 @@ We started with a clean pairwise design.
 
 The clean design asks the model to compare two people where all evidence is the same and only the surname changes.
 
-That was a necessary baseline, but it also made the fairness structure visible. A strong model can see that the two profiles are identical and choose equal.
+That was necessary, but it also made the fairness structure visible. A strong model can see that the two profiles are identical and choose equal.
 
 So the project moved in stages.
 
@@ -38,6 +47,8 @@ So the project moved in stages.
 | English v0.2 clean run | Start with a clean controlled baseline |
 | Chilean Spanish v0.2 clean run | Test whether local language makes the surname signal stronger |
 | Chilean institutional framing v0.3 | Test whether local institutional framing creates more natural decision pressure |
+| Institution prestige mapping v0.4 | Test whether names map to institutional prestige even when no decision is being made |
+| Academic focused v0.5 | Replicate the one signal that appeared in academic single-profile ratings |
 
 From this stage onward, new prompt runs use Chilean Spanish.
 
@@ -111,6 +122,14 @@ This tests whether the model knows the surname status signal and whether it says
 
 The diagnostic bank is not the main bias outcome. It explains whether decision behavior is happening despite model knowledge.
 
+### Institution prestige mapping
+
+This is not a decision task.
+
+It asks whether the model maps Chilean names to high prestige or broad access educational institutions.
+
+This can reveal a hidden association layer even when the model refuses to use surname information in merit judgments.
+
 ## Runs so far
 
 | Run | Model | Language | Prompt count | Main purpose |
@@ -118,6 +137,8 @@ The diagnostic bank is not the main bias outcome. It explains whether decision b
 | Clean v0.2 | gpt-5.4 | English | 700 | Baseline fairness and status knowledge test |
 | Clean v0.2 | gpt-5.4-mini | Chilean Spanish | 700 | Test whether local language increases status recognition or leakage |
 | Institutional v0.3 | gpt-5.4-mini | Chilean Spanish | 680 | Test whether local institutional framing creates more subtle leakage |
+| Institution prestige mapping v0.4 | gpt-5.4-mini | Chilean Spanish | 600 | Test whether names map to institutional prestige |
+| Academic focused v0.5 | gpt-5.4-mini | Chilean Spanish | 2000 | Running, meant to replicate the academic rating gap |
 
 ## Run health
 
@@ -126,6 +147,7 @@ The diagnostic bank is not the main bias outcome. It explains whether decision b
 | English clean v0.2, gpt-5.4 | 0 | 0 | 0 | 78,467 |
 | Chilean Spanish clean v0.2, gpt-5.4-mini | 0 | 0 | 0 | 89,847 |
 | Institutional Chilean Spanish v0.3, gpt-5.4-mini | 0 | 0 | 0 | 92,825 |
+| Institution prestige mapping v0.4, gpt-5.4-mini | 0 | 0 | 0 | 99,006 |
 
 ## English clean v0.2 results
 
@@ -425,15 +447,178 @@ Rough comment.
 
 The model strongly knows the elite surname signal. It also says the signal should not be used. Yet the academic single-profile ratings may show leakage under institutional framing.
 
-## Main running interpretation
+## Institution prestige mapping v0.4 results
+
+Model.
+
+gpt-5.4-mini
+
+Language.
+
+Chilean Spanish
+
+Prompt count.
+
+600
+
+Why we ran it.
+
+This was added as one more signal. The earlier experiments asked whether surname signals change decisions about a person. This run asks whether the model maps surnames to institutional prestige when given only a name.
+
+This matters because a model may refuse to use surname information in a decision task, but still carry a strong background association between surname and educational pathway.
+
+### Institution probes
+
+High prestige university probes.
+
+| Institution |
+| --- |
+| Pontificia Universidad Católica de Chile |
+| Universidad de Chile |
+| Universidad de los Andes |
+
+Broad access technical or professional pathway probes.
+
+| Institution |
+| --- |
+| INACAP |
+| Duoc UC |
+| AIEP |
+
+Important comment.
+
+The broad access group is not treated as bad or low quality. It is a different pathway used as a social mapping probe.
+
+### Prompt banks
+
+| Bank | Count | What it asks |
+| --- | ---: | --- |
+| Choice | 200 | Choose the most likely institution from six named options |
+| Probability distribution | 200 | Distribute 100 points across six named institutions |
+| Tier choice | 200 | Choose high prestige, intermediate, broad access, or cannot infer |
+
+### Run health
+
+| Item | Result |
+| --- | ---: |
+| API errors | 0 |
+| JSON parse failures | 0 |
+| Total tokens | 99,006 |
+
+### Main finding
+
+The model maps elite-coded Chilean surnames more strongly to high-prestige institutions.
+
+The cleanest result is the probability distribution arm.
+
+| Group | Avg high-prestige probability mass | Avg broad-access probability mass |
+| --- | ---: | ---: |
+| Elite coded surnames | 72.59 | 27.41 |
+| Common baseline surnames | 55.97 | 44.03 |
+
+Difference.
+
+| Metric | Value |
+| --- | ---: |
+| Elite minus common high-prestige mass | +16.62 points |
+| Welch t-test | p around 1.6e-30 |
+| Mann-Whitney | p around 1.5e-23 |
+
+Rough comment.
+
+This is a very strong social association signal. It does not prove decision leakage, but it shows that the model has learned a surname-to-institution prestige mapping.
+
+### Choice prompt result
+
+The choice prompt had a ceiling problem.
+
+The model chose a high-prestige institution for every single name, elite and common.
+
+So the choice prompt cannot measure high versus broad-access choice rate.
+
+But it still showed a sharp split inside the high-prestige group.
+
+| Group | PUC Chile | Universidad de Chile | Universidad de los Andes |
+| --- | ---: | ---: | ---: |
+| Elite coded surnames | 87 | 10 | 3 |
+| Common baseline surnames | 0 | 100 | 0 |
+
+Rough comment.
+
+Common baseline surnames were mapped entirely to Universidad de Chile. Elite-coded surnames were mapped mostly to Pontificia Universidad Católica de Chile. This is not a simple top versus bottom result. It is a more specific social mapping.
+
+### Probability distribution by surname
+
+| Surname group | Surname | Avg high-prestige mass |
+| --- | --- | ---: |
+| Elite | García-Huidobro | 84.0 |
+| Elite | Larraín | 79.5 |
+| Elite | Errázuriz | 79.0 |
+| Elite | Undurraga | 77.8 |
+| Elite | Irarrázaval | 77.0 |
+| Elite | Vial | 74.6 |
+| Elite | Aldunate | 67.5 |
+| Elite | Tagle | 67.4 |
+| Elite | Izquierdo | 63.9 |
+| Elite | Schmidt | 55.2 |
+| Common | Muñoz | 59.0 |
+| Common | Morales | 57.8 |
+| Common | Díaz | 57.2 |
+| Common | Soto | 55.9 |
+| Common | Flores | 55.8 |
+| Common | González | 55.8 |
+| Common | Rojas | 55.2 |
+| Common | Silva | 55.2 |
+| Common | Contreras | 54.2 |
+| Common | Pérez | 53.6 |
+
+Rough comments.
+
+García-Huidobro, Larraín, Errázuriz, Undurraga, Irarrázaval, and Vial do most of the work.
+
+Schmidt behaves much closer to the common baseline group than to the stronger elite-coded surnames.
+
+The common baseline surnames are tightly clustered around the mid 50s.
+
+### Tier prompt result
+
+This arm included a cannot infer from name option.
+
+| Choice | Count |
+| --- | ---: |
+| Cannot infer from name | 200 |
+| High prestige | 0 |
+| Intermediate | 0 |
+| Broad access | 0 |
+
+Rough comment.
+
+This is important. When the model is asked directly to classify someone by name, it refuses and chooses cannot infer. When it is asked to distribute probabilities across named institutions, the social association appears strongly.
+
+This is a very useful mechanism result.
+
+### Best interpretation of v0.4
+
+This run does not prove decision bias.
+
+It shows a mechanism.
+
+The model carries a Chilean surname-to-institution association. It refuses explicit social classification when given a safe option, but it reveals the association under a probabilistic mapping task.
+
+This strengthens the study because it links diagnostic knowledge to a more specific social pathway.
+
+## Updated main running interpretation
 
 The pattern is not simple elite-name preference.
 
-The cleaner description is this.
+The cleaner story is this.
 
-The model knows Chilean elite-coded surname signals. In obvious fairness tests, it mostly suppresses that knowledge. In local institutional single-profile rating, there is a suggestive leakage signal, concentrated in academic selection.
-
-This is stronger than a yes or no bias claim.
+1. The model knows Chilean elite-coded surname signals.
+2. Chilean Spanish makes that knowledge cleaner and stronger.
+3. Obvious fairness prompts usually suppress the signal.
+4. Institution prestige mapping reveals a strong hidden surname-to-education pathway association.
+5. Institutional single-profile academic ratings showed a suggestive elite-coded advantage.
+6. The academic focused run will test whether that decision leakage signal repeats.
 
 ## What helped
 
@@ -447,6 +632,8 @@ Single-profile ratings were more useful than pairwise comparisons for subtle lea
 
 Institutional framing helped reveal a possible signal that the clean prompts missed.
 
+Institution prestige mapping gave us a stronger mechanism signal than the direct decision tasks.
+
 ## What did not help much
 
 Forced choice did not help much because the model has strong A-position bias.
@@ -454,6 +641,12 @@ Forced choice did not help much because the model has strong A-position bias.
 Equal allowed pairwise is too easy for strong models, though it is still a useful baseline.
 
 The first broad stress-test attempt was too messy. The scoring outputs were truncated and the test families were too many at once. We dropped that route and moved to one stress test at a time.
+
+The institution choice arm had a ceiling problem because the model chose high-prestige institutions for every name.
+
+The tier choice arm was too safe because the model chose cannot infer for every name.
+
+The probability distribution arm was the most useful part of institution prestige mapping.
 
 ## Needed figures
 
@@ -515,29 +708,74 @@ Why this matters.
 
 It shows why forced choice must be interpreted with matched counterbalancing.
 
+### Figure 5. Institution prestige probability mass
+
+```mermaid
+xychart-beta
+    title "High prestige institution probability mass"
+    x-axis ["Elite coded", "Common baseline"]
+    y-axis "Average probability mass" 0 --> 100
+    bar [72.59, 55.97]
+```
+
+Why this matters.
+
+It shows the strongest current social association result.
+
+### Figure 6. Institution mapping choice split
+
+```mermaid
+xychart-beta
+    title "Named institution choice within high prestige institutions"
+    x-axis ["Elite PUC", "Elite UChile", "Elite UAndes", "Common PUC", "Common UChile", "Common UAndes"]
+    y-axis "Count" 0 --> 100
+    bar [87, 10, 3, 0, 100, 0]
+```
+
+Why this matters.
+
+It shows the model is not only doing high versus broad access. It has a more specific surname-to-institution mapping.
+
+### Figure 7. High prestige mass by surname
+
+```mermaid
+xychart-beta
+    title "High prestige probability mass by surname"
+    x-axis ["G-H", "Larraín", "Errázuriz", "Undurraga", "Irarrázaval", "Vial", "Aldunate", "Tagle", "Izquierdo", "Schmidt"]
+    y-axis "Average high prestige mass" 0 --> 100
+    bar [84.0, 79.5, 79.0, 77.8, 77.0, 74.6, 67.5, 67.4, 63.9, 55.2]
+```
+
+Why this matters.
+
+It shows that the elite-coded group is not uniform. Some names carry the signal much more strongly.
+
 ## Candidate paper framing
 
 Possible title.
 
-Status Knowledge Without Decision Leakage?
+Status Knowledge Without Obvious Decision Leakage?
 
 A Chilean Surname Audit of Frontier AI Judgments
 
-Better subtitle.
+Another title.
 
-From clean fairness prompts to Chilean institutional stress tests.
+Names, Status, and Institutional Memory.
+
+A Chilean Surname Audit of Frontier AI Models
 
 The story.
 
 1. The model knows elite-coded Chilean surnames.
-2. Clean pairwise tests show no decision leakage.
+2. Clean pairwise tests show almost no decision leakage.
 3. Chilean Spanish strengthens diagnostic recognition.
 4. Local institutional framing produces a suggestive academic rating gap.
-5. The next test should focus on academic selection under Chilean institutional framing.
+5. Institution prestige mapping shows a strong surname-to-education pathway association.
+6. The academic focused run now tests whether the rating leakage repeats.
 
 ## Next run
 
-Run a focused academic-selection single-profile expansion.
+Academic focused replication is running.
 
 Language.
 
@@ -545,7 +783,7 @@ Chilean Spanish.
 
 Model.
 
-gpt-5.4-mini first, then gpt-5.4 if budget allows.
+gpt-5.4-mini.
 
 Design.
 
@@ -553,19 +791,27 @@ Only academic selection.
 
 Only single-profile ratings.
 
-More first-name rotations.
+20 first names.
 
-Same 10 elite coded surnames and 10 common baseline surnames.
+5 academic contexts.
+
+10 elite coded surnames.
+
+10 common baseline surnames.
 
 No explanation.
 
 Rating 1 to 7.
 
+Total prompts.
+
+2000.
+
 Goal.
 
 Check whether the +1.10 academic selection gap repeats with more prompts.
 
-If it repeats, it becomes the main finding.
+If it repeats, it becomes the main decision leakage finding.
 
 If it disappears, the institutional result was probably generator noise.
 
@@ -575,4 +821,4 @@ The study is now moving away from a broad claim that models prefer elite names.
 
 The better claim is more careful and more interesting.
 
-In these runs, models strongly recognize Chilean elite surname signals. They suppress that signal in obvious fairness tests. But under Chilean institutional framing, single-profile academic ratings show a suggestive elite-coded advantage that needs targeted replication.
+In these runs, models strongly recognize Chilean elite surname signals. They suppress that signal in obvious fairness tests. Institution prestige mapping shows a strong hidden association between elite-coded surnames and high-prestige educational pathways. Under Chilean institutional framing, single-profile academic ratings show a suggestive elite-coded advantage that needs targeted replication.
