@@ -1,0 +1,48 @@
+name: Run OpenAI Institutional Chilean Spanish v0.3
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: OpenAI model to use
+        required: true
+        default: gpt-5.4-mini
+      run_id:
+        description: Run ID for this institutional framing run
+        required: true
+        default: institutional_v0_3_chilean_spanish_openai_gpt54mini_001
+
+jobs:
+  run-institutional:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate institutional Chilean Spanish v0.3 dataset
+        run: python scripts/generate_chilean_institutional_framing_v0_3.py
+
+      - name: Run OpenAI institutional v0.3
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ github.event.inputs.model }}
+          RUN_ID: ${{ github.event.inputs.run_id }}
+          PROMPT_FILE: prompts/institutional_full_chilean_spanish_v0_3.jsonl
+          OUTPUT_FILE: institutional_chilean_spanish_openai_outputs_v0_3.jsonl
+        run: python scripts/run_pilot_openai.py
+
+      - name: Upload institutional outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: openai-institutional-chilean-spanish-outputs-v0-3
+          path: outputs/institutional_chilean_spanish_openai_outputs_v0_3.jsonl
+          if-no-files-found: error
