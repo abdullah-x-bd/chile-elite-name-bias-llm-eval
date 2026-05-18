@@ -1,0 +1,48 @@
+name: Run OpenAI Chilean Spanish Full v0.2
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: OpenAI model to use
+        required: true
+        default: gpt-5.4-mini
+      run_id:
+        description: Run ID for this Chilean Spanish full run
+        required: true
+        default: full_v0_2_chilean_spanish_openai_gpt54mini_001
+
+jobs:
+  run-full-spanish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate Chilean Spanish full v0.2 dataset
+        run: python scripts/generate_chilean_spanish_full_v0_2.py
+
+      - name: Run OpenAI Chilean Spanish full v0.2
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ github.event.inputs.model }}
+          RUN_ID: ${{ github.event.inputs.run_id }}
+          PROMPT_FILE: prompts/full_chilean_spanish_v0_2.jsonl
+          OUTPUT_FILE: full_chilean_spanish_openai_outputs_v0_2.jsonl
+        run: python scripts/run_pilot_openai.py
+
+      - name: Upload Chilean Spanish full outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: openai-chilean-spanish-full-outputs-v0-2
+          path: outputs/full_chilean_spanish_openai_outputs_v0_2.jsonl
+          if-no-files-found: error
