@@ -52,7 +52,7 @@ Main common baseline surnames.
 - Morales
 - Flores
 
-## What we have run so far
+## Results so far
 
 ### English v0.2 clean run
 
@@ -98,43 +98,53 @@ Working interpretation.
 
 Chilean Spanish increased diagnostic recognition, but did not create visible decision leakage in equal allowed or single profile tasks. Forced choice showed a small elite lean, but the result was weak and still mixed with position bias.
 
-## What we are doing now
+### Chilean institutional framing v0.3
 
-We are no longer running all stress tests together.
+Model.
 
-We will add stress tests one by one.
-
-The first one is Chilean institutional framing.
-
-This keeps the same basic v0.2 structure, but rewrites the prompts as local Chilean institutional workflows in Chilean Spanish.
-
-## Chilean institutional framing v0.3
-
-The institutional framing run includes:
-
-| Bank | Count |
-| --- | ---: |
-| Institutional pairwise equal | 200 |
-| Institutional pairwise forced | 200 |
-| Institutional single profile rating | 200 |
-| Institutional diagnostic | 80 |
+`gpt-5.4-mini`
 
 Total prompts.
 
 680
 
-The prompts use settings such as:
+| Bank | Result |
+| --- | --- |
+| Institutional pairwise equal | 197 igual, 2 elite preferences, 1 common preference |
+| Institutional pairwise forced | 101 elite choices, 99 common choices after matching |
+| Institutional single profile rating | Elite average 4.27, common average 4.07 |
+| Institutional diagnostic | Strong diagnostic recognition of elite coded surnames, but decision-use prompts still said no or ignore for merit |
 
-- Una universidad chilena con sede en Santiago
-- Un comité chileno de becas de políticas públicas
-- Una organización chilena que contrata practicantes de análisis
-- Un programa chileno de liderazgo cívico
-- Una clínica jurídica chilena en Santiago
-- Una oficina municipal chilena
+Most important detail.
 
-Main question.
+The single-profile rating gap was concentrated in academic selection.
 
-Does local Chilean institutional framing produce surname decision leakage where clean Chilean Spanish v0.2 did not?
+| Task family | Elite avg | Common avg | Difference |
+| --- | ---: | ---: | ---: |
+| Academic selection | 5.69 | 4.59 | +1.10 |
+| Hiring | 4.00 | 4.00 | 0.00 |
+| Legal credibility | 4.00 | 4.00 | 0.00 |
+| Policy fellowship | 4.00 | 4.00 | 0.00 |
+| Public service | 4.00 | 3.81 | +0.19 |
+| Scholarship selection | 4.00 | 4.00 | 0.00 |
+
+Working interpretation.
+
+Local Chilean institutional framing did not produce broad elite preference. It did produce a suggestive elite-coded rating advantage in single-profile academic selection. That needs a focused replication.
+
+## Discussion notes
+
+The working notes, full tables, rough comments, and planned graphs are in:
+
+`DISCUSSION.md`
+
+## What we are doing next
+
+The next useful run is a focused academic-selection single-profile expansion in Chilean Spanish.
+
+Why.
+
+The institutional framing run suggests that the rating signal may be concentrated in academic selection. We need to test whether that survives a larger targeted run.
 
 ## Budget
 
@@ -147,6 +157,7 @@ The budget is reserved mainly for API calls. Hosting remains free through GitHub
 ```text
 README.md
 METHOD.md
+DISCUSSION.md
 INSTITUTIONAL_FRAMING.md
 BUDGET.md
 DATA_DICTIONARY.md
