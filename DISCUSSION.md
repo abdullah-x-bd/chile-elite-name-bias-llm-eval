@@ -49,6 +49,7 @@ So the project moved in stages.
 | Chilean institutional framing v0.3 | Test whether local institutional framing creates more natural decision pressure | Suggestive academic rating gap |
 | Institution prestige mapping v0.4 | Test whether names map to institutional prestige even when no decision is being made | Strong mapping signal |
 | Academic focused v0.5 | Replicate the academic rating gap | Gap did not replicate |
+| Hidden metadata academic review v0.6 | Hide names in files and emails to avoid obvious fairness-test structure | No stable elite-surname decision leakage |
 
 From this stage onward, new prompt runs use Chilean Spanish.
 
@@ -130,6 +131,14 @@ It asks whether the model maps Chilean names to high prestige or broad access ed
 
 This revealed the strongest positive finding so far.
 
+### Hidden metadata review
+
+This hides names inside filenames and email sender fields.
+
+The model reviews batches of files, gives scores, and chooses shortlists.
+
+This was designed to make the name look like ordinary workflow metadata.
+
 ## Runs so far
 
 | Run | Model | Language | Prompt count | Main purpose |
@@ -139,6 +148,7 @@ This revealed the strongest positive finding so far.
 | Institutional v0.3 | gpt-5.4-mini | Chilean Spanish | 680 | Test whether local institutional framing creates more subtle leakage |
 | Institution prestige mapping v0.4 | gpt-5.4-mini | Chilean Spanish | 600 | Test whether names map to institutional prestige |
 | Academic focused v0.5 | gpt-5.4-mini | Chilean Spanish | 2000 | Replicate the academic rating gap |
+| Hidden metadata v0.6 | gpt-5.4-mini | Chilean Spanish | 500 | Test hidden file and email metadata leakage |
 
 ## Run health
 
@@ -149,6 +159,7 @@ This revealed the strongest positive finding so far.
 | Institutional Chilean Spanish v0.3, gpt-5.4-mini | 0 | 0 | 0 | 92,825 |
 | Institution prestige mapping v0.4, gpt-5.4-mini | 0 | 0 | 0 | 99,006 |
 | Academic focused v0.5, gpt-5.4-mini | 0 | 0 | 0 | 293,618 |
+| Hidden metadata v0.6, gpt-5.4-mini | 0 | 0 | 0 | 668,625 |
 
 ## English clean v0.2 results
 
@@ -699,6 +710,169 @@ Rough comment.
 
 No stable elite advantage. The institution prestige mapping signal did not translate into academic rating differences in this focused test.
 
+## Hidden metadata academic review v0.6 results
+
+Model.
+
+gpt-5.4-mini
+
+Language.
+
+Chilean Spanish
+
+Prompt count.
+
+500
+
+Candidate-level scored records.
+
+6000
+
+Why we ran it.
+
+The model may recognize direct fairness tests and answer safely. This run hides names in PDF filenames and email sender metadata. It asks the model to score batches of files and choose shortlists.
+
+### Run health
+
+| Item | Result |
+| --- | ---: |
+| Prompt rows | 500 |
+| Candidate level scored records | 6000 |
+| API errors | 0 |
+| JSON parse failures | 0 |
+| Total tokens | 668,625 |
+
+Prompt banks.
+
+| Bank | Prompts | Candidate scores |
+| --- | ---: | ---: |
+| blind_file | 100 | 1200 |
+| file_named | 100 | 1200 |
+| file_swapped | 100 | 1200 |
+| email_named | 100 | 1200 |
+| email_swapped | 100 | 1200 |
+
+### Main matched surname test
+
+File metadata condition.
+
+| Metric | Result |
+| --- | ---: |
+| Matched profile pairs | 1200 |
+| Elite minus common average score | +0.005 |
+| Paired t-test | p = 0.584 |
+| Wilcoxon | p = 0.584 |
+
+Email metadata condition.
+
+| Metric | Result |
+| --- | ---: |
+| Matched profile pairs | 1200 |
+| Elite minus common average score | -0.004 |
+| Paired t-test | p = 0.684 |
+| Wilcoxon | p = 0.684 |
+
+Rough comment.
+
+This is basically zero in both modes.
+
+### Score movement
+
+File metadata.
+
+| Elite minus common score | Count |
+| --- | ---: |
+| -1 | 57 |
+| 0 | 1080 |
+| +1 | 63 |
+
+Email metadata.
+
+| Elite minus common score | Count |
+| --- | ---: |
+| -1 | 78 |
+| 0 | 1049 |
+| +1 | 73 |
+
+### Shortlist results
+
+| Mode | Elite shortlist rate | Common shortlist rate |
+| --- | ---: | ---: |
+| File metadata | 25.0% | 25.0% |
+| Email metadata | 25.0% | 25.0% |
+
+Rough comment.
+
+The model mostly selected the strongest evidence band. It almost always picked C01, C02, and C03 because those were the strong candidates.
+
+### Name visibility effect
+
+Adding names made the model slightly more generous compared to the blind file condition.
+
+This was not elite-specific.
+
+| Condition | Average score | Change from blind |
+| --- | ---: | ---: |
+| blind_file | 5.269 | 0.000 |
+| file_named | 5.385 | +0.116 |
+| file_swapped | 5.413 | +0.144 |
+| email_named | 5.348 | +0.079 |
+| email_swapped | 5.334 | +0.065 |
+
+By surname group.
+
+| Mode | Common change from blind | Elite change from blind |
+| --- | ---: | ---: |
+| File metadata | +0.128 | +0.133 |
+| Email metadata | +0.074 | +0.070 |
+
+Rough comment.
+
+Names made the review slightly warmer or more person-like, but did not favor elite-coded surnames.
+
+### Evidence band results
+
+| Mode | Band | Elite minus common |
+| --- | --- | ---: |
+| File | Strong | -0.007 |
+| File | Middle | +0.007 |
+| File | Borderline | +0.013 |
+| Email | Strong | 0.000 |
+| Email | Middle | 0.000 |
+| Email | Borderline | -0.017 |
+
+No meaningful surname effect appeared in strong, middle, or borderline cases.
+
+### High-mapping elite surnames
+
+| Mode | High-mapping elite surname | Elite minus common |
+| --- | --- | ---: |
+| File | Yes | +0.010 |
+| File | No | -0.002 |
+| Email | Yes | -0.011 |
+| Email | No | +0.006 |
+
+Rough comment.
+
+The elite surnames that were strongest in institution prestige mapping did not create hidden academic scoring advantage.
+
+### Important design lesson
+
+If we looked only at file_named, we would have made the wrong claim.
+
+| Bank | Group | Avg score |
+| --- | --- | ---: |
+| file_named | Elite | 5.613 |
+| file_named | Common | 5.157 |
+| file_swapped | Elite | 5.190 |
+| file_swapped | Common | 5.637 |
+
+The swapped condition reverses the raw gap.
+
+So the raw file_named gap was caused by candidate position and evidence pattern, not surname.
+
+The matched design saved the study from a false positive.
+
 ## Updated main interpretation
 
 The pattern is not simple elite-name preference.
@@ -710,7 +884,8 @@ The cleaner story is this.
 3. Obvious fairness prompts usually suppress the signal.
 4. Institution prestige mapping reveals a strong hidden surname-to-education pathway association.
 5. The earlier academic rating gap did not replicate.
-6. We do not currently have stable evidence of academic decision leakage.
+6. Hidden metadata review also did not show elite-name decision leakage.
+7. We do not currently have stable evidence of academic decision leakage.
 
 ## What helped
 
@@ -725,6 +900,8 @@ Single-profile ratings were more useful than pairwise comparisons for detecting 
 Institution prestige mapping gave us the strongest mechanism signal.
 
 The academic focused run helped by preventing overclaiming. It killed a tempting but weak result.
+
+The hidden metadata run helped because it tested a less obvious workflow and still avoided a false positive through matched swaps.
 
 ## What did not help much
 
@@ -741,6 +918,8 @@ The tier choice arm was too safe because the model chose cannot infer for every 
 The probability distribution arm was the most useful part of institution prestige mapping.
 
 The academic institutional signal did not help as a final claim because it did not replicate.
+
+The hidden metadata shortlist was not very sensitive because the model kept picking the strongest evidence band.
 
 ## Needed figures
 
@@ -858,6 +1037,34 @@ Why this matters.
 
 It shows that the focused academic run was driven by context wording, not surname group.
 
+### Figure 9. Hidden metadata matched score effect
+
+```mermaid
+xychart-beta
+    title "Hidden metadata elite minus common matched score effect"
+    x-axis ["File metadata", "Email metadata"]
+    y-axis "Elite minus common score" -0.05 --> 0.05
+    bar [0.005, -0.004]
+```
+
+Why this matters.
+
+It shows that names hidden in metadata did not create an elite-score advantage.
+
+### Figure 10. Name visibility effect
+
+```mermaid
+xychart-beta
+    title "Average score by metadata condition"
+    x-axis ["Blind", "File named", "File swapped", "Email named", "Email swapped"]
+    y-axis "Average score" 5.0 --> 5.5
+    bar [5.269, 5.385, 5.413, 5.348, 5.334]
+```
+
+Why this matters.
+
+It shows that names made scoring slightly more generous, but not in an elite-specific way.
+
 ## Candidate paper framing
 
 Possible title.
@@ -879,7 +1086,8 @@ The story.
 3. Chilean Spanish strengthens diagnostic recognition.
 4. Institution prestige mapping shows a strong surname-to-education pathway association.
 5. A suggestive academic rating gap appeared once but did not replicate.
-6. The study should claim social mapping, not stable decision bias.
+6. Hidden metadata file and email review also showed no stable academic decision leakage.
+7. The study should claim social mapping, not stable decision bias.
 
 ## Current rough conclusion
 
@@ -887,4 +1095,4 @@ The study is now moving away from a broad claim that models prefer elite names.
 
 The better claim is more careful and more interesting.
 
-In these runs, models strongly recognize Chilean elite surname signals. They suppress that signal in obvious fairness tests. Institution prestige mapping shows a strong hidden association between elite-coded surnames and high-prestige educational pathways. But this did not translate into stable academic rating differences in the focused replication.
+In these runs, models strongly recognize Chilean elite surname signals. They suppress that signal in obvious fairness tests. Institution prestige mapping shows a strong hidden association between elite-coded surnames and high-prestige educational pathways. But this did not translate into stable academic rating or shortlisting differences in the focused and hidden metadata tests.
