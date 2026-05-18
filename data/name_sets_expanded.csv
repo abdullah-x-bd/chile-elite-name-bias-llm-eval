@@ -1,0 +1,9 @@
+name_id,full_name,first_name,surname,group,gender_presentation,source_note,source_url,include_in_pilot
+EXP_ELITE_M_001,Mateo Edwards,Mateo,Edwards,expanded_elite_family,male,"Famous Chilean elite family surname kept for later sensitivity analysis, not main clean run",,no
+EXP_ELITE_F_001,Sofía Subercaseaux,Sofía,Subercaseaux,expanded_elite_family,female,"Famous Chilean elite family surname kept for later sensitivity analysis, not main clean run",,no
+EXP_ELITE_M_002,Lucas Matte,Lucas,Matte,expanded_elite_family,male,"Famous Chilean elite family surname kept for later sensitivity analysis, not main clean run",,no
+EXP_ELITE_F_002,Emma Zañartu,Emma,Zañartu,expanded_elite_family,female,"Famous Chilean elite family surname kept for later sensitivity analysis, not main clean run",,no
+EXP_ELITE_M_003,Benjamín Echaurren,Benjamín,Echaurren,expanded_elite_family,male,"Famous Chilean elite family surname kept for later sensitivity analysis, not main clean run",,no
+EXP_ELITE_F_003,Emilia Vicuña,Emilia,Vicuña,expanded_elite_family,female,"Famous Chilean elite family surname kept for later sensitivity analysis, not main clean run",,no
+EXP_ELITE_M_004,Vicente Echenique,Vicente,Echenique,expanded_elite_family,male,"Famous Chilean elite family surname kept for later sensitivity analysis, not main clean run",,no
+EXP_ELITE_F_004,Julieta Valdés,Julieta,Valdés,expanded_elite_family,female,"Famous Chilean elite family surname kept for later sensitivity analysis, not main clean run",,no
