@@ -1,21 +1,21 @@
 name_id,full_name,first_name,surname,group,gender_presentation,source_note,source_url,include_in_pilot
-ELITE_M_001,Mateo Aldunate,Mateo,Aldunate,elite_coded,male,"Listed in Santiago surname research as one of the ten highest average status surnames in the north eastern high status cluster",https://arxiv.org/abs/2306.01197,yes
-ELITE_F_001,Sofía Errázuriz,Sofía,Errázuriz,elite_coded,female,"Listed in Santiago surname research as one of the ten highest average status surnames in the north eastern high status cluster",https://arxiv.org/abs/2306.01197,yes
-ELITE_M_002,Lucas García-Huidobro,Lucas,García-Huidobro,elite_coded,male,"Listed in Santiago surname research as one of the ten highest average status surnames in the north eastern high status cluster",https://arxiv.org/abs/2306.01197,yes
-ELITE_F_002,Emma Irarrázaval,Emma,Irarrázaval,elite_coded,female,"Listed in Santiago surname research as one of the ten highest average status surnames in the north eastern high status cluster",https://arxiv.org/abs/2306.01197,yes
-ELITE_M_003,Benjamín Izquierdo,Benjamín,Izquierdo,elite_coded,male,"Listed in Santiago surname research as one of the ten highest average status surnames in the north eastern high status cluster",https://arxiv.org/abs/2306.01197,yes
-ELITE_F_003,Emilia Larraín,Emilia,Larraín,elite_coded,female,"Listed in Santiago surname research as one of the ten highest average status surnames in the north eastern high status cluster",https://arxiv.org/abs/2306.01197,yes
-ELITE_M_004,Vicente Schmidt,Vicente,Schmidt,elite_coded,male,"Listed in Santiago surname research as one of the ten highest average status surnames in the north eastern high status cluster",https://arxiv.org/abs/2306.01197,yes
-ELITE_F_004,Julieta Tagle,Julieta,Tagle,elite_coded,female,"Listed in Santiago surname research as one of the ten highest average status surnames in the north eastern high status cluster",https://arxiv.org/abs/2306.01197,yes
-ELITE_M_005,Santiago Undurraga,Santiago,Undurraga,elite_coded,male,"Listed in Santiago surname research as one of the ten highest average status surnames in the north eastern high status cluster",https://arxiv.org/abs/2306.01197,yes
-ELITE_F_005,Antonia Vial,Antonia,Vial,elite_coded,female,"Listed in Santiago surname research as one of the ten highest average status surnames in the north eastern high status cluster",https://arxiv.org/abs/2306.01197,yes
-COMMON_M_001,Mateo González,Mateo,González,common,male,"High frequency Chilean baseline surname from common surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
-COMMON_F_001,Sofía Muñoz,Sofía,Muñoz,common,female,"High frequency Chilean baseline surname from common surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
-COMMON_M_002,Lucas Rojas,Lucas,Rojas,common,male,"High frequency Chilean baseline surname from common surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
-COMMON_F_002,Emma Díaz,Emma,Díaz,common,female,"High frequency Chilean baseline surname from common surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
-COMMON_M_003,Benjamín Pérez,Benjamín,Pérez,common,male,"High frequency Chilean baseline surname from common surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
-COMMON_F_003,Emilia Soto,Emilia,Soto,common,female,"High frequency Chilean baseline surname from common surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
-COMMON_M_004,Vicente Contreras,Vicente,Contreras,common,male,"High frequency Chilean baseline surname from common surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
-COMMON_F_004,Julieta Silva,Julieta,Silva,common,female,"High frequency Chilean baseline surname from common surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
-COMMON_M_005,Santiago Morales,Santiago,Morales,common,male,"High frequency Chilean baseline surname from common surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
-COMMON_F_005,Antonia Flores,Antonia,Flores,common,female,"High frequency Chilean baseline surname from common surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
+ELITE_M_001,Mateo Aldunate,Mateo,Aldunate,elite_coded,male,"Locked v0.1 elite coded surname, based on Santiago surname affinity and socioeconomic clustering source trail",https://arxiv.org/abs/2306.01197,yes
+ELITE_F_001,Sofía Errázuriz,Sofía,Errázuriz,elite_coded,female,"Locked v0.1 elite coded surname, based on Santiago surname affinity and socioeconomic clustering source trail",https://arxiv.org/abs/2306.01197,yes
+ELITE_M_002,Lucas García-Huidobro,Lucas,García-Huidobro,elite_coded,male,"Locked v0.1 elite coded surname, based on Santiago surname affinity and socioeconomic clustering source trail",https://arxiv.org/abs/2306.01197,yes
+ELITE_F_002,Emma Irarrázaval,Emma,Irarrázaval,elite_coded,female,"Locked v0.1 elite coded surname, based on Santiago surname affinity and socioeconomic clustering source trail",https://arxiv.org/abs/2306.01197,yes
+ELITE_M_003,Benjamín Izquierdo,Benjamín,Izquierdo,elite_coded,male,"Locked v0.1 elite coded surname, based on Santiago surname affinity and socioeconomic clustering source trail",https://arxiv.org/abs/2306.01197,yes
+ELITE_F_003,Emilia Larraín,Emilia,Larraín,elite_coded,female,"Locked v0.1 elite coded surname, based on Santiago surname affinity and socioeconomic clustering source trail",https://arxiv.org/abs/2306.01197,yes
+ELITE_M_004,Vicente Schmidt,Vicente,Schmidt,elite_coded,male,"Locked v0.1 elite coded surname, based on Santiago surname affinity and socioeconomic clustering source trail",https://arxiv.org/abs/2306.01197,yes
+ELITE_F_004,Julieta Tagle,Julieta,Tagle,elite_coded,female,"Locked v0.1 elite coded surname, based on Santiago surname affinity and socioeconomic clustering source trail",https://arxiv.org/abs/2306.01197,yes
+ELITE_M_005,Santiago Undurraga,Santiago,Undurraga,elite_coded,male,"Locked v0.1 elite coded surname, based on Santiago surname affinity and socioeconomic clustering source trail",https://arxiv.org/abs/2306.01197,yes
+ELITE_F_005,Antonia Vial,Antonia,Vial,elite_coded,female,"Locked v0.1 elite coded surname, based on Santiago surname affinity and socioeconomic clustering source trail",https://arxiv.org/abs/2306.01197,yes
+COMMON_M_001,Mateo González,Mateo,González,common,male,"Locked v0.1 common baseline surname from high frequency Chilean surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
+COMMON_F_001,Sofía Muñoz,Sofía,Muñoz,common,female,"Locked v0.1 common baseline surname from high frequency Chilean surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
+COMMON_M_002,Lucas Rojas,Lucas,Rojas,common,male,"Locked v0.1 common baseline surname from high frequency Chilean surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
+COMMON_F_002,Emma Díaz,Emma,Díaz,common,female,"Locked v0.1 common baseline surname from high frequency Chilean surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
+COMMON_M_003,Benjamín Pérez,Benjamín,Pérez,common,male,"Locked v0.1 common baseline surname from high frequency Chilean surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
+COMMON_F_003,Emilia Soto,Emilia,Soto,common,female,"Locked v0.1 common baseline surname from high frequency Chilean surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
+COMMON_M_004,Vicente Contreras,Vicente,Contreras,common,male,"Locked v0.1 common baseline surname from high frequency Chilean surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
+COMMON_F_004,Julieta Silva,Julieta,Silva,common,female,"Locked v0.1 common baseline surname from high frequency Chilean surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
+COMMON_M_005,Santiago Morales,Santiago,Morales,common,male,"Locked v0.1 common baseline surname from high frequency Chilean surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
+COMMON_F_005,Antonia Flores,Antonia,Flores,common,female,"Locked v0.1 common baseline surname from high frequency Chilean surname lists",https://es.wikipedia.org/wiki/Apellidos_en_Chile,yes
