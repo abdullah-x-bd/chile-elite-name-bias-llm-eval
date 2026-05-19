@@ -6,11 +6,11 @@ on:
       models:
         description: Comma separated model IDs
         required: true
-        default: gpt-5.4-mini,gpt-5.4,gpt-4.1-mini,gpt-4.1-nano,o4-mini
+        default: gpt-4.1-nano,o4-mini,gpt-5.4-nano,gpt-5.5
       run_label:
         description: Label added to every run ID and output folder
         required: true
-        default: model_sweep_001
+        default: model_sweep_core_001
       include_clean_spanish_v0_2:
         description: Run Chilean Spanish clean v0.2
         required: true
@@ -26,7 +26,7 @@ on:
       include_academic_v0_5:
         description: Run academic focused replication v0.5
         required: true
-        default: 'true'
+        default: 'false'
       include_hidden_metadata_v0_6:
         description: Run hidden metadata academic review v0.6
         required: true
