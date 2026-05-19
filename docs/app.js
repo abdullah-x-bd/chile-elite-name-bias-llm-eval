@@ -74,6 +74,49 @@ const commonNames = [
   "González", "Muñoz", "Rojas", "Díaz", "Pérez", "Soto", "Contreras", "Silva", "Morales", "Flores"
 ];
 
+function renderLogo() {
+  const icon = document.createElement("link");
+  icon.rel = "icon";
+  icon.href = "logo.svg";
+  icon.type = "image/svg+xml";
+  document.head.appendChild(icon);
+
+  const brand = document.querySelector(".brand");
+  if (brand) {
+    brand.innerHTML = `<img class="brand-logo-img" src="logo.svg" alt="Chilean Surname Audit logo">`;
+  }
+
+  const hero = document.querySelector(".hero-copy");
+  if (hero && !document.querySelector(".hero-logo-img")) {
+    hero.insertAdjacentHTML("afterbegin", `<img class="hero-logo-img" src="logo.svg" alt="Chilean Surname Audit logo">`);
+  }
+
+  const style = document.createElement("style");
+  style.textContent = `
+    .brand-logo-img {
+      width: 220px;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+    .hero-logo-img {
+      display: block;
+      width: min(620px, 100%);
+      height: auto;
+      margin: 0 0 28px;
+      border: 1px solid rgba(32, 25, 18, 0.10);
+      border-radius: 24px;
+      background: #fffdf8;
+      box-shadow: 0 22px 70px rgba(42, 31, 20, 0.10);
+    }
+    @media (max-width: 900px) {
+      .brand-logo-img { width: 190px; }
+      .hero-logo-img { margin-top: 8px; }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 function renderTimeline() {
   const root = document.getElementById("timeline");
   if (!root) return;
@@ -113,6 +156,7 @@ function renderNames() {
   if (commonRoot) commonRoot.innerHTML = commonNames.map(name => `<span>${name}</span>`).join("");
 }
 
+renderLogo();
 renderTimeline();
 renderCharts();
 renderNames();
