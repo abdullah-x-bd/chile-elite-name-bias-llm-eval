@@ -34,91 +34,47 @@ const experiments = [
 const charts = {
   prestige: {
     max: 100,
-    rows: [
-      ["Elite-coded", 72.59, "72.59%"],
-      ["Common baseline", 55.97, "55.97%"]
-    ]
+    rows: [["Elite-coded", 72.59, "72.59%"], ["Common baseline", 55.97, "55.97%"]]
   },
   academic: {
     max: 7,
-    rows: [
-      ["Elite-coded", 6.420, "6.420"],
-      ["Common baseline", 6.418, "6.418"]
-    ]
+    rows: [["Elite-coded", 6.420, "6.420"], ["Common baseline", 6.418, "6.418"]]
   },
   metadata: {
     max: 0.05,
-    rows: [
-      ["File metadata", 0.005, "+0.005"],
-      ["Email metadata", 0.004, "-0.004"]
-    ]
+    rows: [["File metadata", 0.005, "+0.005"], ["Email metadata", 0.004, "-0.004"]]
   },
   choice: {
     max: 100,
-    rows: [
-      ["Elite to PUC", 87, "87"],
-      ["Elite to UChile", 10, "10"],
-      ["Elite to UAndes", 3, "3"],
-      ["Common to PUC", 0, "0"],
-      ["Common to UChile", 100, "100"],
-      ["Common to UAndes", 0, "0"]
-    ]
+    rows: [["Elite to PUC", 87, "87"], ["Elite to UChile", 10, "10"], ["Elite to UAndes", 3, "3"], ["Common to PUC", 0, "0"], ["Common to UChile", 100, "100"], ["Common to UAndes", 0, "0"]]
   }
 };
 
-const eliteNames = [
-  "Aldunate", "Errázuriz", "García-Huidobro", "Irarrázaval", "Izquierdo", "Larraín", "Schmidt", "Tagle", "Undurraga", "Vial"
-];
-
-const commonNames = [
-  "González", "Muñoz", "Rojas", "Díaz", "Pérez", "Soto", "Contreras", "Silva", "Morales", "Flores"
-];
+const eliteNames = ["Aldunate", "Errázuriz", "García-Huidobro", "Irarrázaval", "Izquierdo", "Larraín", "Schmidt", "Tagle", "Undurraga", "Vial"];
+const commonNames = ["González", "Muñoz", "Rojas", "Díaz", "Pérez", "Soto", "Contreras", "Silva", "Morales", "Flores"];
 
 function renderLogo() {
   const icon = document.createElement("link");
   icon.rel = "icon";
-  icon.href = "logo.svg";
+  icon.href = "logo.svg?v=3";
   icon.type = "image/svg+xml";
   document.head.appendChild(icon);
 
   const brand = document.querySelector(".brand");
   if (brand) {
-    brand.innerHTML = `<img class="brand-logo-img" src="logo.svg?v=2" alt="Chilean Surname Audit logo">`;
+    brand.innerHTML = `<img class="brand-logo-img" src="logo.svg?v=3" alt="Chilean Surname Audit emblem">`;
   }
 
   const style = document.createElement("style");
   style.textContent = `
-    .brand { min-width: 250px; }
-    .brand-logo-img {
-      width: 250px;
-      height: auto;
-      display: block;
-      object-fit: contain;
-    }
-    h1 {
-      font-size: clamp(42px, 5.4vw, 74px) !important;
-      line-height: 1.02 !important;
-      max-width: 760px !important;
-      margin-bottom: 18px !important;
-    }
+    .brand { min-width: 86px; display: flex; align-items: center; justify-content: flex-start; }
+    .brand-logo-img { width: 74px; height: 74px; display: block; object-fit: contain; background: transparent; }
+    h1 { font-size: clamp(42px, 5.4vw, 74px) !important; line-height: 1.02 !important; max-width: 760px !important; margin-bottom: 18px !important; }
     .hero { min-height: 660px !important; }
-    .subtitle {
-      font-size: clamp(20px, 2.2vw, 28px) !important;
-      max-width: 690px !important;
-    }
-    .hero-text {
-      font-size: 17px !important;
-      max-width: 650px !important;
-    }
-    .hero-card h2 {
-      font-size: clamp(30px, 3vw, 42px) !important;
-      line-height: 1.02 !important;
-    }
-    @media (max-width: 900px) {
-      .brand { min-width: 210px; }
-      .brand-logo-img { width: 210px; }
-      h1 { font-size: clamp(42px, 11vw, 66px) !important; }
-    }
+    .subtitle { font-size: clamp(20px, 2.2vw, 28px) !important; max-width: 690px !important; }
+    .hero-text { font-size: 17px !important; max-width: 650px !important; }
+    .hero-card h2 { font-size: clamp(30px, 3vw, 42px) !important; line-height: 1.02 !important; }
+    @media (max-width: 900px) { .brand { min-width: 74px; } .brand-logo-img { width: 62px; height: 62px; } h1 { font-size: clamp(42px, 11vw, 66px) !important; } }
   `;
   document.head.appendChild(style);
 }
@@ -144,13 +100,7 @@ function renderCharts() {
     if (!chart) return;
     node.innerHTML = chart.rows.map(([label, value, display]) => {
       const width = Math.max(1, Math.min(100, Math.abs(value) / chart.max * 100));
-      return `
-        <div class="bar-row">
-          <div class="bar-label">${label}</div>
-          <div class="bar-track"><div class="bar-fill" style="--w:${width}%"></div></div>
-          <div class="bar-value">${display}</div>
-        </div>
-      `;
+      return `<div class="bar-row"><div class="bar-label">${label}</div><div class="bar-track"><div class="bar-fill" style="--w:${width}%"></div></div><div class="bar-value">${display}</div></div>`;
     }).join("");
   });
 }
