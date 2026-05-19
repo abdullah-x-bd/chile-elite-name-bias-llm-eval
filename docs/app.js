@@ -83,35 +83,41 @@ function renderLogo() {
 
   const brand = document.querySelector(".brand");
   if (brand) {
-    brand.innerHTML = `<img class="brand-logo-img" src="logo.svg" alt="Chilean Surname Audit logo">`;
-  }
-
-  const hero = document.querySelector(".hero-copy");
-  if (hero && !document.querySelector(".hero-logo-img")) {
-    hero.insertAdjacentHTML("afterbegin", `<img class="hero-logo-img" src="logo.svg" alt="Chilean Surname Audit logo">`);
+    brand.innerHTML = `<img class="brand-logo-img" src="logo.svg?v=2" alt="Chilean Surname Audit logo">`;
   }
 
   const style = document.createElement("style");
   style.textContent = `
+    .brand { min-width: 250px; }
     .brand-logo-img {
-      width: 220px;
+      width: 250px;
       height: auto;
       display: block;
       object-fit: contain;
     }
-    .hero-logo-img {
-      display: block;
-      width: min(620px, 100%);
-      height: auto;
-      margin: 0 0 28px;
-      border: 1px solid rgba(32, 25, 18, 0.10);
-      border-radius: 24px;
-      background: #fffdf8;
-      box-shadow: 0 22px 70px rgba(42, 31, 20, 0.10);
+    h1 {
+      font-size: clamp(42px, 5.4vw, 74px) !important;
+      line-height: 1.02 !important;
+      max-width: 760px !important;
+      margin-bottom: 18px !important;
+    }
+    .hero { min-height: 660px !important; }
+    .subtitle {
+      font-size: clamp(20px, 2.2vw, 28px) !important;
+      max-width: 690px !important;
+    }
+    .hero-text {
+      font-size: 17px !important;
+      max-width: 650px !important;
+    }
+    .hero-card h2 {
+      font-size: clamp(30px, 3vw, 42px) !important;
+      line-height: 1.02 !important;
     }
     @media (max-width: 900px) {
-      .brand-logo-img { width: 190px; }
-      .hero-logo-img { margin-top: 8px; }
+      .brand { min-width: 210px; }
+      .brand-logo-img { width: 210px; }
+      h1 { font-size: clamp(42px, 11vw, 66px) !important; }
     }
   `;
   document.head.appendChild(style);
