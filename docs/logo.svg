@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" role="img" aria-labelledby="title desc">
+  <title id="title">Chilean Surname Audit logo</title>
+  <desc id="desc">A polished academic logo with a circular CL monogram, Chile silhouette, mapping dots, and wordmark.</desc>
+  <defs>
+    <style>
+      .bg{fill:#fffdf8}.ink{fill:#0d2234}.stroke{stroke:#0d2234;stroke-width:8;fill:none;stroke-linecap:round}.rust{fill:#a9572b}.olive{fill:#777966}.thin{stroke:#a9572b;stroke-width:4;fill:none;stroke-linecap:round}.contour{stroke:#777966;stroke-width:3;fill:none;stroke-linecap:round}.word{font-family:Georgia, 'Times New Roman', serif;font-size:82px;fill:#0d2234;letter-spacing:-2px}.sub{font-family:Inter, Arial, sans-serif;font-size:24px;fill:#777966;letter-spacing:14px;font-weight:600}
+    </style>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1200" height="400" rx="0"/>
+  <g transform="translate(70 64)">
+    <circle cx="136" cy="136" r="124" class="stroke"/>
+    <path class="rust" d="M43 68 C35 88 39 111 31 130 C39 148 32 174 42 193 C36 209 43 228 48 249 C57 233 50 209 57 195 C49 172 59 151 50 132 C56 111 47 91 54 72 C50 65 49 60 43 68 Z"/>
+    <text x="83" y="164" style="font-family:Georgia, 'Times New Roman', serif;font-size:155px;fill:#0d2234;letter-spacing:-20px">CL</text>
+    <g fill="#777966">
+      <circle cx="181" cy="39" r="5"/><circle cx="202" cy="50" r="5"/><circle cx="219" cy="67" r="5"/><circle cx="232" cy="87" r="5"/><circle cx="240" cy="110" r="5"/><circle cx="242" cy="134" r="5"/>
+    </g>
+    <path class="contour" d="M62 219 C91 211 112 229 141 220 C173 210 194 224 218 214"/>
+    <path class="contour" d="M61 236 C91 226 116 246 146 235 C173 225 195 239 220 230"/>
+    <path class="contour" d="M67 253 C95 244 120 260 148 251 C176 242 199 254 222 247"/>
+  </g>
+  <g transform="translate(360 126)">
+    <text class="word" x="0" y="0" dominant-baseline="hanging">Chilean Surname Audit</text>
+    <line class="thin" x1="0" y1="142" x2="65" y2="142"/>
+    <text class="sub" x="86" y="132" dominant-baseline="hanging">LLM CLASS BIAS STUDY</text>
+    <line class="thin" x1="470" y1="142" x2="535" y2="142"/>
+  </g>
+</svg>
