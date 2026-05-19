@@ -72,7 +72,7 @@ def main():
     if not PROMPT_PATH.exists():
         raise FileNotFoundError(f"Missing {PROMPT_PATH}. Generate the requested prompt file first.")
 
-    OUTPUT_DIR.mkdir(exist_ok=True)
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     done = already_done(OUTPUT_PATH)
     client = OpenAI(api_key=api_key)
 
