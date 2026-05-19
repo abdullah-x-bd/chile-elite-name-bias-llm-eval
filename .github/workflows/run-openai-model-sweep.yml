@@ -1,0 +1,120 @@
+name: Run OpenAI Model Sweep
+
+on:
+  workflow_dispatch:
+    inputs:
+      models:
+        description: Comma separated model IDs
+        required: true
+        default: gpt-5.4-mini,gpt-5.4,gpt-4.1-mini,gpt-4.1-nano,o4-mini
+      run_label:
+        description: Label added to every run ID and output folder
+        required: true
+        default: model_sweep_001
+      include_clean_spanish_v0_2:
+        description: Run Chilean Spanish clean v0.2
+        required: true
+        default: 'true'
+      include_institutional_v0_3:
+        description: Run Chilean institutional framing v0.3
+        required: true
+        default: 'true'
+      include_prestige_v0_4:
+        description: Run institution prestige mapping v0.4
+        required: true
+        default: 'true'
+      include_academic_v0_5:
+        description: Run academic focused replication v0.5
+        required: true
+        default: 'true'
+      include_hidden_metadata_v0_6:
+        description: Run hidden metadata academic review v0.6
+        required: true
+        default: 'true'
+
+jobs:
+  run-model-sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate all datasets
+        run: |
+          python scripts/generate_chilean_spanish_full_v0_2.py
+          python scripts/generate_chilean_institutional_framing_v0_3.py
+          python scripts/generate_institution_prestige_mapping_v0_4.py
+          python scripts/generate_academic_focused_single_profile_v0_5.py
+          python scripts/generate_hidden_metadata_academic_review_v0_6.py
+
+      - name: Run selected experiments across models
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          MODELS: ${{ github.event.inputs.models }}
+          RUN_LABEL: ${{ github.event.inputs.run_label }}
+          INCLUDE_CLEAN_SPANISH_V0_2: ${{ github.event.inputs.include_clean_spanish_v0_2 }}
+          INCLUDE_INSTITUTIONAL_V0_3: ${{ github.event.inputs.include_institutional_v0_3 }}
+          INCLUDE_PRESTIGE_V0_4: ${{ github.event.inputs.include_prestige_v0_4 }}
+          INCLUDE_ACADEMIC_V0_5: ${{ github.event.inputs.include_academic_v0_5 }}
+          INCLUDE_HIDDEN_METADATA_V0_6: ${{ github.event.inputs.include_hidden_metadata_v0_6 }}
+        run: |
+          set -e
+
+          run_exp () {
+            local model="$1"
+            local slug="$2"
+            local exp_id="$3"
+            local prompt_file="$4"
+            local max_tokens="$5"
+
+            echo "Running ${exp_id} on ${model}"
+            OPENAI_MODEL="$model" \
+            RUN_ID="${RUN_LABEL}_${slug}_${exp_id}" \
+            PROMPT_FILE="$prompt_file" \
+            OUTPUT_FILE="model_sweeps/${RUN_LABEL}/${slug}/${exp_id}.jsonl" \
+            MAX_OUTPUT_TOKENS="$max_tokens" \
+            python scripts/run_pilot_openai.py
+          }
+
+          IFS=',' read -ra MODEL_LIST <<< "$MODELS"
+          for raw_model in "${MODEL_LIST[@]}"; do
+            model="$(echo "$raw_model" | xargs)"
+            slug="$(echo "$model" | tr '.:/ ' '____')"
+
+            if [ "$INCLUDE_CLEAN_SPANISH_V0_2" = "true" ]; then
+              run_exp "$model" "$slug" "clean_spanish_v0_2" "prompts/full_chilean_spanish_v0_2.jsonl" "60"
+            fi
+
+            if [ "$INCLUDE_INSTITUTIONAL_V0_3" = "true" ]; then
+              run_exp "$model" "$slug" "institutional_v0_3" "prompts/institutional_full_chilean_spanish_v0_3.jsonl" "60"
+            fi
+
+            if [ "$INCLUDE_PRESTIGE_V0_4" = "true" ]; then
+              run_exp "$model" "$slug" "institution_prestige_v0_4" "prompts/institution_prestige_mapping_full_v0_4.jsonl" "120"
+            fi
+
+            if [ "$INCLUDE_ACADEMIC_V0_5" = "true" ]; then
+              run_exp "$model" "$slug" "academic_focused_v0_5" "prompts/academic_focused_single_profile_chilean_spanish_v0_5.jsonl" "60"
+            fi
+
+            if [ "$INCLUDE_HIDDEN_METADATA_V0_6" = "true" ]; then
+              run_exp "$model" "$slug" "hidden_metadata_v0_6" "prompts/hidden_metadata_academic_review_full_v0_6.jsonl" "280"
+            fi
+          done
+
+      - name: Upload model sweep outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: openai-model-sweep-outputs
+          path: outputs/model_sweeps/${{ github.event.inputs.run_label }}/
+          if-no-files-found: error
