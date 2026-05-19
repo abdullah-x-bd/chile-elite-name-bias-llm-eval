@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,600;6..72,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="study-story.css" />
 </head>
 <body>
   <div class="site-shell">
@@ -20,6 +21,7 @@
         </a>
         <div class="nav-links" aria-label="Primary navigation">
           <a href="#findings">Findings</a>
+          <a href="#study-story">Study</a>
           <a href="#experiments">Experiments</a>
           <a href="#charts">Charts</a>
           <a href="#method">Method</a>
@@ -38,7 +40,7 @@
             <p class="hero-text">The project tests whether frontier AI models recognize Chilean elite-coded surnames, map them to high-prestige institutions, and use those signals when scoring or shortlisting academic profiles.</p>
             <div class="hero-actions">
               <a class="button primary" href="#findings">Read the findings</a>
-              <a class="button secondary" href="#experiments">See experiments</a>
+              <a class="button secondary" href="#study-story">Read the study story</a>
             </div>
           </div>
           <aside class="hero-card" aria-label="Current headline finding">
@@ -68,6 +70,115 @@
         <div class="metric"><span>Candidate-level hidden metadata scores</span><strong>6,000</strong></div>
         <div class="metric"><span>High-prestige mapping gap</span><strong>+16.62</strong></div>
         <div class="metric"><span>Academic focused score gap</span><strong>+0.002</strong></div>
+      </section>
+
+      <section id="study-story" class="section-pad story-section">
+        <div class="story-shell">
+          <aside class="story-intro-card">
+            <p class="eyebrow">Full study narrative</p>
+            <h2>How the project actually unfolded</h2>
+            <p>This study did not start with a clean final answer. It moved through a series of tests. Each result forced the next design choice.</p>
+            <p>The story is simple: we first asked whether the model preferred elite-coded names. Then we realized the model often detects fairness tests. So we started separating what the model knows from what it actually does.</p>
+            <div class="story-note">Current honest claim: the model carries a Chilean surname-status map and an institution-prestige map. So far, that map has not produced stable academic decision leakage in our controlled tests.</div>
+          </aside>
+
+          <div class="story-flow">
+            <article class="story-chapter">
+              <div class="story-chapter-header"><span class="story-number">01</span><h3>The starting worry</h3></div>
+              <p>The project started from a simple AI safety worry. Many evaluations test race, gender, religion, or nationality. Those categories matter, but they do not cover every social hierarchy. In many countries, status is also carried through local signals that are harder to see from outside.</p>
+              <p>In Chile, surnames can act as one such signal. Some surnames are associated with old elite families, high-status networks, or specific social worlds. Other surnames are just very common baseline names. The question was whether a frontier AI model has learned those associations.</p>
+              <p>The first idea was direct: give the model two similar people, change only the surname, and ask who should be selected.</p>
+              <div class="story-callout">Early question: does the model prefer the elite-coded name when all other evidence is the same?</div>
+            </article>
+
+            <article class="story-chapter">
+              <div class="story-chapter-header"><span class="story-number">02</span><h3>Building the name set</h3></div>
+              <p>Before running prompts, the surname list had to be defensible. The elite-coded group was not invented casually. It was built from research on Chilean surname affinity, elite clustering, and the high-status north-eastern Santiago social space.</p>
+              <p>The common baseline group was drawn from frequent Chilean surnames. These were not treated as poor surnames. They were used as common comparison names. That distinction matters because the study is not claiming that every person with a surname belongs to a class group.</p>
+              <div class="story-mini-grid">
+                <div class="story-mini-card"><span>Elite-coded probes</span><strong>10</strong><p>Aldunate, Larraín, Errázuriz, García-Huidobro, and others.</p></div>
+                <div class="story-mini-card"><span>Common baseline probes</span><strong>10</strong><p>González, Muñoz, Rojas, Díaz, Pérez, and others.</p></div>
+                <div class="story-mini-card"><span>Rule</span><strong>Probe, not label</strong><p>The names are research probes, not claims about real individuals.</p></div>
+              </div>
+            </article>
+
+            <article class="story-chapter">
+              <div class="story-chapter-header"><span class="story-number">03</span><h3>The first prompt design</h3></div>
+              <p>The first real design had four prompt families. Equal-allowed pairwise prompts let the model choose A, B, or equal. Forced-choice pairwise prompts forced a choice between two people. Single-profile prompts gave one profile at a time and asked for a rating. Diagnostic prompts asked whether the surname carried any social association.</p>
+              <p>We removed explanation fields. That was important. If the model has to explain why it chose someone, it may become more aware that the task is about fairness. So most prompts asked for JSON only.</p>
+              <p>The early results were not what a dramatic bias story would predict. When equal was allowed, the model mostly chose equal. In forced choice, we saw strong position bias. It often preferred option A, regardless of surname. That meant raw forced-choice counts could be misleading.</p>
+              <div class="story-callout">Design lesson: without matched swapping, forced-choice prompts can create fake bias through position effects.</div>
+            </article>
+
+            <article class="story-chapter">
+              <div class="story-chapter-header"><span class="story-number">04</span><h3>Why we moved to Chilean Spanish</h3></div>
+              <p>The English prompts did not show a stable decision gap. But the diagnostic prompts showed that the model had some surname knowledge. The next question was whether local language would make the signal clearer.</p>
+              <p>So we rebuilt the prompt set in Chilean Spanish. This changed the study. The model became much cleaner at recognizing elite-coded surnames as carrying status association. Common baseline surnames were mostly marked as having no association.</p>
+              <p>But this still did not create a clear rating gap. The model could know the status signal and still avoid using it in decision prompts.</p>
+              <div class="story-mini-grid">
+                <div class="story-mini-card"><span>Diagnostic signal</span><strong>Stronger</strong><p>Chilean Spanish made elite-coded recognition clearer.</p></div>
+                <div class="story-mini-card"><span>Single rating gap</span><strong>None</strong><p>Elite and common names still scored about the same.</p></div>
+                <div class="story-mini-card"><span>Interpretation</span><strong>Knowledge ≠ action</strong><p>The model can know the signal and still not use it in a direct score.</p></div>
+              </div>
+            </article>
+
+            <article class="story-chapter">
+              <div class="story-chapter-header"><span class="story-number">05</span><h3>The institutional framing test</h3></div>
+              <p>At this point, the clean comparison prompts looked too obvious. A strong model can see the fairness structure: two equal people, only surname differs, choose fairly. So we made the task feel more like a local Chilean institutional workflow.</p>
+              <p>The institutional framing run included academic selection, public service, hiring, scholarship selection, legal credibility, and policy fellowship contexts. This produced one tempting signal. In the single-profile academic selection slice, elite-coded names scored higher.</p>
+              <p>That looked like the first possible decision leakage result. But it was still a slice inside a broader run, so we treated it as suggestive, not final.</p>
+              <div class="story-callout">The academic selection gap looked interesting, but it needed a direct replication before becoming a claim.</div>
+            </article>
+
+            <article class="story-chapter">
+              <div class="story-chapter-header"><span class="story-number">06</span><h3>The institution mapping breakthrough</h3></div>
+              <p>Then we tried a different question. Instead of asking the model to judge a person, we asked it to map names to Chilean institutions. This was not a merit decision. It was a social association test.</p>
+              <p>This became the strongest positive finding. In probability distribution prompts, elite-coded surnames received much more probability mass for high-prestige institutions than common baseline surnames.</p>
+              <p>The model also behaved differently depending on the form of the question. When asked to choose a tier with a cannot-infer option, it chose cannot infer every time. But when asked to distribute probabilities across named institutions, the surname-to-institution map appeared strongly.</p>
+              <div class="story-mini-grid">
+                <div class="story-mini-card"><span>Elite-coded high-prestige mass</span><strong>72.59</strong><p>Average probability mass assigned to high-prestige institutions.</p></div>
+                <div class="story-mini-card"><span>Common baseline mass</span><strong>55.97</strong><p>The corresponding value for common baseline surnames.</p></div>
+                <div class="story-mini-card"><span>Gap</span><strong>+16.62</strong><p>The strongest positive result in the project so far.</p></div>
+              </div>
+              <p>This changed the project. The strongest story was no longer simple decision preference. It was hidden social mapping.</p>
+            </article>
+
+            <article class="story-chapter">
+              <div class="story-chapter-header"><span class="story-number">07</span><h3>The academic focused replication</h3></div>
+              <p>We then went back to the earlier academic-selection signal. If it was real, a larger focused run should show it again. So we created 2000 single-profile academic prompts in Chilean Spanish.</p>
+              <p>The result was basically zero. Elite-coded profiles averaged 6.420. Common baseline profiles averaged 6.418. The gap was only +0.002, with no meaningful statistical support.</p>
+              <p>This was important. It killed a tempting result and made the study more honest. The earlier academic signal was likely a small-sample or prompt-context artifact.</p>
+              <div class="story-callout">The focused replication did not support academic decision leakage.</div>
+            </article>
+
+            <article class="story-chapter">
+              <div class="story-chapter-header"><span class="story-number">08</span><h3>The hidden metadata review</h3></div>
+              <p>We still had one major doubt. Maybe the model was behaving safely because the prompts looked like fairness audits. So we designed a more realistic workflow. Names appeared only in PDF filenames or email sender fields. The model had to score batches of academic files and choose shortlists.</p>
+              <p>This test generated 500 prompts and 6000 candidate-level scores. It had blind file review, named file review, swapped named file review, email named review, and email swapped review.</p>
+              <p>The matched result was again close to zero. In file metadata, elite minus common score was +0.005. In email metadata, it was -0.004. Shortlist rates were equal. High-mapping elite surnames also did not gain a stable advantage.</p>
+              <p>The run did reveal one small effect: adding names made the model slightly more generous overall. But that was not elite-specific. Both elite-coded and common baseline names benefited in roughly the same way.</p>
+              <div class="story-mini-grid">
+                <div class="story-mini-card"><span>File metadata effect</span><strong>+0.005</strong><p>No meaningful elite advantage.</p></div>
+                <div class="story-mini-card"><span>Email metadata effect</span><strong>-0.004</strong><p>No meaningful elite advantage.</p></div>
+                <div class="story-mini-card"><span>Shortlist rate</span><strong>25% / 25%</strong><p>Elite and common were equal in file and email modes.</p></div>
+              </div>
+            </article>
+
+            <article class="story-chapter">
+              <div class="story-chapter-header"><span class="story-number">09</span><h3>The main design lesson</h3></div>
+              <p>The hidden metadata run also showed why matched swaps matter. If we had looked only at one raw named file condition, we might have claimed a big elite advantage. But the swapped condition reversed the gap.</p>
+              <p>That means the raw gap came from candidate position and evidence pattern, not surname. The matched design saved the study from a false positive.</p>
+              <div class="story-callout">The study is stronger because it refused to overclaim when the matched evidence did not support the easy story.</div>
+            </article>
+
+            <article class="story-chapter">
+              <div class="story-chapter-header"><span class="story-number">10</span><h3>Where the study stands now</h3></div>
+              <p>The current story is sharper than the original title. The model does not simply prefer elite names in every decision setting. That would be too blunt and the evidence does not support it.</p>
+              <p>The stronger result is that the model carries a social map. It recognizes elite-coded Chilean surnames and maps them toward high-prestige institutions. But across clean pairwise tests, institutional framing, focused academic ratings, and hidden metadata review, that map did not become stable academic scoring or shortlisting bias.</p>
+              <p>This is still an AI safety finding. It shows that models can carry local social knowledge that standard global evaluations may miss. It also shows why we need to separate association, mapping, and behavior before making claims about harm.</p>
+            </article>
+          </div>
+        </div>
       </section>
 
       <section id="experiments" class="section-pad">
