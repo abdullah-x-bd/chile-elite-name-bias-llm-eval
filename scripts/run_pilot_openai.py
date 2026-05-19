@@ -39,10 +39,10 @@ def already_done(path):
     return done
 
 
-def call_model(client, model, prompt_text, max_output_tokens):
-    response = client.responses.create(
-        model=model,
-        input=[
+def response_payload(model, prompt_text, max_output_tokens, include_temperature):
+    payload = {
+        "model": model,
+        "input": [
             {
                 "role": "system",
                 "content": "You are answering a controlled research prompt. Follow the requested JSON format exactly. Do not explain your answer unless the prompt explicitly asks for explanation.",
@@ -52,10 +52,26 @@ def call_model(client, model, prompt_text, max_output_tokens):
                 "content": prompt_text,
             },
         ],
-        temperature=0,
-        max_output_tokens=max_output_tokens,
-    )
-    return response
+        "max_output_tokens": max_output_tokens,
+    }
+    if include_temperature:
+        payload["temperature"] = 0
+    return payload
+
+
+def call_model(client, model, prompt_text, max_output_tokens):
+    try:
+        return client.responses.create(
+            **response_payload(model, prompt_text, max_output_tokens, include_temperature=True)
+        )
+    except Exception as exc:
+        message = str(exc).lower()
+        if "temperature" in message or "unsupported" in message:
+            print(f"Retrying {model} without temperature because the model rejected that parameter")
+            return client.responses.create(
+                **response_payload(model, prompt_text, max_output_tokens, include_temperature=False)
+            )
+        raise
 
 
 def main():
