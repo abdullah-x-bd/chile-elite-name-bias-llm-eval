@@ -1,0 +1,44 @@
+The final primary release contains 8,256 semantically valid responses, exactly 1,032 from each of eight frozen model/provider cells. The release verifier found 8,256 unique request identities and zero invalid primary rows. Scientific rows recorded in the accepted release cost USD 3.081; total key expenditure was higher because the audit also includes discarded diagnostic and execution-repair calls.
+
+\subsection{Latent surname-status association}
+
+The forced association instrument produced a large and heterogeneous elite-status signal across model families. Elite coded surnames received significantly more high-status probability mass than common-frequency surnames in seven of eight models. The elite-minus-common contrasts ranged from +7.00 points for Llama 4 Maverick to +62.10 points for Gemini 3.6 Flash. GPT 5.4 Nano was the only model whose elite-minus-common contrast was not conventionally significant (+6.00, 95\% CI $[-0.20,12.05]$, $p=0.083$). The rarity control strengthened the interpretation: elite coded surnames received more high-status mass than rare-frequency surnames in all eight models, including GPT 5.4 Nano (+7.85, 95\% CI $[2.10,13.75]$, $p=0.023$).
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+Model & Elite--common association & Elite--common decision & Standardized decision \\
+\midrule
+Claude Sonnet 5 & +53.60 & +0.052 & +0.002 \\
+DeepSeek V3.2 & +10.00 & -0.026 & -0.021 \\
+Gemini 3.6 Flash & +62.10 & -0.010 & -0.000 \\
+GPT 5.4 Mini & +40.80 & -1.365 & -0.049 \\
+GPT 5.4 Nano & +6.00 & -1.266 & -0.034 \\
+Llama 4 Maverick & +7.00 & +0.146 & +0.095 \\
+Mistral Medium 3.5 & +41.75 & -0.068 & -0.002 \\
+Qwen 3.7 Max & +36.85 & +0.536 & +0.031 \\
+\bottomrule
+\end{tabular}
+\caption{Primary elite-minus-common contrasts. Association is measured in high-status probability points. Decision effects are matched score-point differences.}
+\label{tab:primary}
+\end{table}
+
+The effect was not merely a refusal artifact. Abstention behavior varied sharply across systems. For example, Gemini 3.6 Flash abstained on the common and rare surname groups in the abstention-permitted instrument while expressing high-status inferences for every elite-coded surname; Claude Sonnet 5 also inferred much more often for elite-coded names. Other systems, including GPT 5.4 Mini and Nano, generally abstained across all groups. The forced instrument therefore provides the common comparison used for the primary association estimand, while the abstention instrument documents alignment-dependent willingness to operationalize that knowledge.
+
+\subsection{Consequential decision leakage}
+
+The strong association effects did not transfer into comparably large matched decisions. Five systems met the predeclared equivalence criterion within $\pm0.10$ standard deviations: Claude Sonnet 5, DeepSeek V3.2, Gemini 3.6 Flash, Mistral Medium 3.5, and Qwen 3.7 Max. Their standardized elite-minus-common effects ranged from -0.021 to +0.031. GPT 5.4 Mini and GPT 5.4 Nano did not meet the equivalence criterion because their confidence intervals were too wide, but neither showed a statistically detectable elite advantage. Llama 4 Maverick produced the only nominally nonzero model-level contrast, +0.146 score points (95\% CI $[0.010,0.286]$, $p=0.040$), corresponding to +0.095 standard deviations and therefore lying near the predeclared practical-equivalence boundary rather than representing a large effect.
+
+The mixed-effects model over the 4,608 primary decision observations likewise yielded essentially no general surname-group shift. For the reference model, the fixed effects relative to blind were -0.188 points for common names ($p=0.914$) and -0.135 points for elite names ($p=0.938$), with most model-by-condition interactions small relative to between-profile and between-model variation.
+
+\subsection{Association-to-leakage coupling}
+
+The central transfer hypothesis was not supported. Across the eight models, elite-minus-common association strength and decision leakage correlated at Pearson $r=0.201$ ($p=0.633$) and Spearman $\rho=0.071$ ($p=0.867$). At the finer frozen surname-pair by model level ($n=80$), Pearson $r=0.065$ ($p=0.565$) and Spearman $\rho=-0.077$ ($p=0.495$). Models that encoded stronger status associations were therefore not reliably the models that changed consequential decisions more strongly.
+
+\subsection{Secondary decision contrasts and task competence}
+
+After Benjamini--Hochberg correction, the only secondary decision contrasts surviving a 0.05 false-discovery threshold occurred for Qwen 3.7 Max and compared any visible surname condition against the blind condition: elite names scored -2.74 points relative to blind, common names -3.28, and rare names -5.81. Because the effect applies across all three surname groups rather than specifically favoring elite-coded names, it is better interpreted as a general name-presence sensitivity than as elite-status leakage. No metadata or holistic elite-minus-common contrast survived the secondary FDR correction.
+
+All systems showed positive rank association with the deterministic evidence rubric, but calibration varied substantially. Spearman correlations with normative profile strength ranged from 0.670 for Qwen 3.7 Max to 0.996 for Gemini 3.6 Flash. This variation reinforces the value of separating task competence and score calibration from counterfactual surname effects.
