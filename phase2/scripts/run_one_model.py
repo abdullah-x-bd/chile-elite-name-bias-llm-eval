@@ -3,8 +3,9 @@ import argparse, json, sys
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 from chile_phase2.core import load_manifest
+from chile_phase2.execution_amendment1 import amended_request_payload
+from chile_phase2.execution_amendment2 import run_exact_amendment2
 from chile_phase2.openrouter import request_identity, verify_frozen_models
-from chile_phase2.execution_amendment1 import amended_request_payload, run_exact_amendment1
 
 
 def main():
@@ -27,11 +28,11 @@ def main():
     with out.open('a',encoding='utf-8') as f:
         for idx,prompt in enumerate(manifest,1):
             payload=amended_request_payload(model,prompt,study)
-            rid=request_identity(study['study_id']+'::amendment1',model,prompt,payload)
+            rid=request_identity(study['study_id']+'::amendment2',model,prompt,payload)
             if rid in done: continue
             if cumulative + study['budget']['per_call_safety_allowance_usd'] > args.cap_usd:
                 raise RuntimeError(f"Per-model budget cap would be exceeded for {args.label}: ${cumulative:.4f} / ${args.cap_usd:.4f}")
-            result=run_exact_amendment1(model,prompt,study,cumulative,max_retries=5)
+            result=run_exact_amendment2(model,prompt,study,cumulative,max_retries=5)
             cumulative += float(result.get('cost_usd') or 0)
             if cumulative > args.cap_usd:
                 raise RuntimeError(f"Per-model budget cap exceeded after response for {args.label}: ${cumulative:.4f} / ${args.cap_usd:.4f}")
