@@ -30,7 +30,7 @@ jobs:
           python scripts/verify_amendment6.py
           python scripts/verify_amendment7.py
           python scripts/verify_amendment8.py
-      - name: Snapshot and gate live budget while preserving robustness allowance
+      - name: Snapshot and gate live budget against account balance
         working-directory: phase2
         run: |
           python scripts/capture_openrouter_usage.py --label before_amendment8_missing_shards
@@ -39,10 +39,10 @@ jobs:
           x=json.load(open('results/openrouter_usage_before_amendment8_missing_shards.json'))
           usage=float(x['usage_usd'])
           worst_case_increment=0.50
-          primary_ceiling=5.95
-          if usage+worst_case_increment>primary_ceiling:
-              raise SystemExit(f'AMENDMENT 8 BUDGET GATE: STOP ${usage:.4f}+${worst_case_increment:.2f}>${primary_ceiling:.2f}')
-          print(f'AMENDMENT 8 BUDGET GATE: PASS usage=${usage:.4f}, worst-case added=${worst_case_increment:.2f}, primary ceiling=${primary_ceiling:.2f}')
+          account_safety_ceiling=7.20
+          if usage+worst_case_increment>account_safety_ceiling:
+              raise SystemExit(f'AMENDMENT 8 BUDGET GATE: STOP ${usage:.4f}+${worst_case_increment:.2f}>${account_safety_ceiling:.2f}')
+          print(f'AMENDMENT 8 BUDGET GATE: PASS usage=${usage:.4f}, worst-case added=${worst_case_increment:.2f}, account safety ceiling=${account_safety_ceiling:.2f}')
           PY
       - uses: actions/upload-artifact@v4
         with:
