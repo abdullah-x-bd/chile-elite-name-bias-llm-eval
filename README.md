@@ -1,295 +1,198 @@
-# Do Frontier AI Models Prefer Elite Names
+# Association and Decision Leakage in Large Language Models
 
-A Chilean class bias audit of LLM judgments.
+A cross-model audit of Chilean surname status signals.
 
-This repository is the working home for a Technical AI Safety Project Sprint study. The project tests whether frontier AI models use Chilean elite coded surnames as hidden status signals when judging people in high stakes tasks.
+## Status
 
-## Research question
+**Phase II primary study complete.**
 
-Do frontier AI models know that some Chilean surnames carry elite status associations, and does that knowledge leak into decisions, scores, credibility judgments, priority judgments, or institutional mappings?
+- 8 frozen model/provider cells
+- 1,032 prompts per model
+- **8,256 verified primary responses**
+- 192 deterministic matched decision profiles
+- 30 surname probes across elite-coded, common-frequency, and rare-frequency controls
+- four consequential decision domains
+- two latent-association domains
+- exact provider pinning and prompt hashes
+- pre-outcome protocol and analysis freezes
+- final release verifier: **PASS**
+- semantically invalid rows in accepted release: **0**
 
-## Current language choice
+The historical exploratory study is preserved separately as Phase I. The pre-Phase-II state is frozen at commit `feceba1fabbc8ba74d0bc55ca0ed6317a3a44bf0` and branch `archive/phase1-v0.6`.
 
-From this stage onward, new runs use Chilean Spanish.
+## Main finding
 
-We moved to Chilean Spanish because local language may make Chilean surname signals more salient than English prompts.
+**Large latent socioeconomic associations do not reliably predict consequential decision leakage.**
 
-## Why this matters
+Seven of eight evaluated models assigned significantly greater forced high-status probability mass to elite-coded Chilean surnames than to common-frequency surnames. All eight produced positive and statistically detectable elite-minus-rare association contrasts.
 
-Many AI safety evaluations focus on social categories common in US or European testing. That misses local status markers in many parts of the world. In Chile, surnames can carry class signals. If models learn and repeat those signals, they may quietly reproduce class bias in screening, education, legal intake, hiring support, welfare triage, and public service workflows.
+Those associations mostly disappeared in matched decisions where legitimate evidence was held constant. Five of eight models were statistically equivalent within a predeclared ±0.10 SD decision-effect margin. Two additional models were inconclusive because their decision estimates were too noisy to establish equivalence. Llama 4 Maverick produced a small nominal elite-common effect of +0.146 score points, or +0.095 SD, close to the practical-equivalence boundary.
 
-## Name mapping
+Most importantly, association strength did not predict decision leakage:
 
-The study uses a surname led mapping.
+- model level Pearson `r = 0.201`, `p = 0.633`
+- model level Spearman `rho = 0.071`, `p = 0.867`
+- surname-pair × model Pearson `r = 0.065`, `p = 0.565`
+- surname-pair × model Spearman `rho = -0.077`, `p = 0.495`
 
-Elite coded surnames are drawn from research on surname affinity and socioeconomic clustering in Santiago. The current main list uses surnames described in relation to the high status north eastern Santiago cluster.
+The project therefore treats **status recognition, latent association, and consequential treatment as distinct constructs** rather than using an association probe as evidence of discriminatory decision behavior.
 
-Common baseline surnames are drawn from high frequency Chilean surname lists. These are not treated as poor surnames or lower class surnames. They are common baseline probes.
+## Primary results
 
-Main elite coded surnames.
+| Model | Elite − common association | Elite − common decision | Standardized decision | Equivalent within ±0.10 SD |
+| --- | ---: | ---: | ---: | --- |
+| Claude Sonnet 5 | +53.60 | +0.052 | +0.002 | Yes |
+| DeepSeek V3.2 | +10.00 | -0.026 | -0.021 | Yes |
+| Gemini 3.6 Flash | +62.10 | -0.010 | -0.000 | Yes |
+| GPT-5.4 Mini | +40.80 | -1.365 | -0.049 | No, imprecise |
+| GPT-5.4 Nano | +6.00 | -1.266 | -0.034 | No, imprecise |
+| Llama 4 Maverick | +7.00 | +0.146 | +0.095 | No, borderline |
+| Mistral Medium 3.5 | +41.75 | -0.068 | -0.002 | Yes |
+| Qwen 3.7 Max | +36.85 | +0.536 | +0.031 | Yes |
 
-- Aldunate
-- Errázuriz
-- García-Huidobro
-- Irarrázaval
-- Izquierdo
-- Larraín
-- Schmidt
-- Tagle
-- Undurraga
-- Vial
+Association values are high-status probability points from the frozen forced-association instrument. Decision values are paired score-point differences over identical underlying profiles.
 
-Main common baseline surnames.
+See [`phase2/results/RESULTS.md`](phase2/results/RESULTS.md) for confidence intervals, p-values, claim boundaries, and secondary findings.
 
-- González
-- Muñoz
-- Rojas
-- Díaz
-- Pérez
-- Soto
-- Contreras
-- Silva
-- Morales
-- Flores
+## Why the rarity control matters
 
-## Results so far
+The project does not treat common surnames as a proxy for low socioeconomic status. Phase II adds a third group of **rare-frequency controls** to test whether unusual surname form or rarity alone explains the association signal.
 
-### English v0.2 clean run
+Elite-coded surnames received more high-status probability mass than rare-frequency controls in all eight models. The strongest association results therefore cannot be reduced to a simple common-versus-uncommon surname distinction.
 
-Model.
+## Decision design
 
-`gpt-5.4`
+Phase II uses 192 deterministic synthetic evidence profiles across:
 
-Total prompts.
+- academic selection
+- professional hiring
+- research fellowship selection
+- legal-aid intake
 
-700
+For the primary bank, each base profile is rendered into matched blind, elite-coded, and common-frequency conditions. Legitimate evidence is identical across the counterfactual versions.
 
-| Bank | Result |
-| --- | --- |
-| Equal allowed pairwise | 200 equal, 0 elite preference, 0 common preference |
-| Forced choice pairwise | Strong A position bias, no elite preference after matched counterbalancing |
-| Single profile rating | Elite average 6.12, common average 6.12 |
-| Diagnostic | Model recognized elite coded surname signals but said surnames should not be used for decisions |
+Additional frozen banks test:
 
-### Chilean Spanish v0.2 clean run
+- rare-frequency surnames
+- names visible only in metadata
+- holistic rather than explicitly weighted decision instructions
 
-Model.
+After false-discovery-rate correction, no metadata or holistic elite-minus-common contrast remained significant. The only surviving secondary effects were for Qwen 3.7 Max, where elite, common, and rare surname-bearing profiles all scored below blind versions. That pattern is more consistent with a general name-presence effect than elite-specific leakage.
 
-`gpt-5.4-mini`
+## Association instruments
 
-Total prompts.
+Association is measured separately from decisions in two Chile-specific domains:
 
-700
+- university prestige
+- secondary-school sector
 
-We ran this because Chilean Spanish might make the Chilean surname signal stronger.
+Each is evaluated twice.
 
-| Bank | Result |
-| --- | --- |
-| Equal allowed pairwise | 200 igual, 0 elite preference, 0 common preference |
-| Forced choice pairwise | 106 elite choices, 94 common choices, weak and not statistically strong |
-| Single profile rating | Elite average 6.05, common average 6.06 |
-| Diagnostic | Strong diagnostic recognition of elite coded surnames, but decision-use prompts still said no or ignore for merit |
+**Forced association** requires exactly 100 probability points across ordered status outcomes.
 
-### Chilean institutional framing v0.3
+**Abstention-permitted association** lets a model state that surname alone is insufficient for inference.
 
-Model.
+This distinction exposes major model differences in willingness to operationalize social knowledge. Some systems express elite-status inferences when abstention is allowed, while others abstain across nearly every surname group. The primary cross-model association estimand therefore uses the common forced instrument.
 
-`gpt-5.4-mini`
+## Model panel
 
-Total prompts.
+The accepted primary release contains these exact model/provider cells:
 
-680
+| Label | Requested model | Provider |
+| --- | --- | --- |
+| `gpt54mini` | `openai/gpt-5.4-mini` | OpenAI |
+| `gpt54nano` | `openai/gpt-5.4-nano` | OpenAI |
+| `claude_sonnet5` | `anthropic/claude-sonnet-5` | Anthropic |
+| `gemini36flash` | `google/gemini-3.6-flash` | Google AI Studio |
+| `deepseek_v32` | `deepseek/deepseek-v3.2` | DeepInfra |
+| `qwen37max` | `qwen/qwen3.7-max` | Alibaba |
+| `mistral_medium35` | `mistralai/mistral-medium-3-5` | Mistral |
+| `llama4_maverick` | `meta-llama/llama-4-maverick` | DeepInfra |
 
-| Bank | Result |
-| --- | --- |
-| Institutional pairwise equal | 197 igual, 2 elite preferences, 1 common preference |
-| Institutional pairwise forced | 101 elite choices, 99 common choices after matching |
-| Institutional single profile rating | Elite average 4.27, common average 4.07 |
-| Institutional diagnostic | Strong diagnostic recognition of elite coded surnames, but decision-use prompts still said no or ignore for merit |
+Provider fallbacks were disabled. The experiment records requested model, canonical model, provider, prompt hash, structured response, usage, cost, latency, and retry state.
 
-The single-profile rating gap was concentrated in academic selection, but that signal did not survive the focused replication below.
+## Protocol integrity
 
-| Task family | Elite avg | Common avg | Difference |
-| --- | ---: | ---: | ---: |
-| Academic selection | 5.69 | 4.59 | +1.10 |
-| Hiring | 4.00 | 4.00 | 0.00 |
-| Legal credibility | 4.00 | 4.00 | 0.00 |
-| Policy fellowship | 4.00 | 4.00 | 0.00 |
-| Public service | 4.00 | 3.81 | +0.19 |
-| Scholarship selection | 4.00 | 4.00 | 0.00 |
+Phase II was separated from the exploratory study before the multi-model run. The protocol, deterministic profile generator, analysis plan, model/provider panel, and 1,032-cell-per-model manifest were cryptographically fingerprinted before scientific execution.
 
-### Institution prestige mapping v0.4
+The primary manifest digest is:
 
-Model.
+`280bf06a20a2a3d346340a1d22d4496027c1cda574601121685fc0e37efdb2ff`
 
-`gpt-5.4-mini`
+Execution problems were handled through documented amendments rather than silently changing the study. These include provider/schema compatibility, replacement of an unavailable pre-run DeepSeek endpoint, response-budget compatibility, exact-request retry for malformed or semantic-invalid structured output, and one final single-cell Mistral response-contract repair. No substantive primary outcome was inspected while those amendments were being decided.
 
-Total prompts.
+See `phase2/docs/PROTOCOL_AMENDMENT_*.md` and `phase2/freeze/` for the audit trail.
 
-600
+## Verification
 
-This run treats institution mapping as one more signal. It asks whether the model maps Chilean names to high-prestige or broad-access education pathways.
+The final verifier reports:
 
-| Bank | Result |
-| --- | --- |
-| Choice | High-prestige ceiling effect. Every name was mapped to a high-prestige institution |
-| Probability distribution | Elite-coded surnames received 72.59 high-prestige probability mass, common baseline received 55.97 |
-| Tier choice | The model chose cannot infer from name for all 200 prompts |
-
-The cleanest result is the probability distribution arm.
-
-| Group | Avg high-prestige probability mass | Avg broad-access probability mass |
-| --- | ---: | ---: |
-| Elite coded surnames | 72.59 | 27.41 |
-| Common baseline surnames | 55.97 | 44.03 |
-
-Difference.
-
-| Metric | Value |
-| --- | ---: |
-| Elite minus common high-prestige mass | +16.62 points |
-| Welch t-test | p around 1.6e-30 |
-| Mann-Whitney | p around 1.5e-23 |
-
-Choice prompt split inside high-prestige institutions.
-
-| Group | PUC Chile | Universidad de Chile | Universidad de los Andes |
-| --- | ---: | ---: | ---: |
-| Elite coded surnames | 87 | 10 | 3 |
-| Common baseline surnames | 0 | 100 | 0 |
-
-Working interpretation.
-
-This is not a decision bias result. It is a strong institutional mapping result. The model refuses explicit tier inference when allowed to say cannot infer, but it reveals a strong surname-to-institution association in probability mapping.
-
-### Academic focused replication v0.5
-
-Model.
-
-`gpt-5.4-mini`
-
-Total prompts.
-
-2000
-
-This run tested whether the academic-selection signal from institutional framing repeats with a much larger single-profile academic dataset.
-
-| Group | Count | Average rating |
-| --- | ---: | ---: |
-| Elite coded | 1000 | 6.420 |
-| Common baseline | 1000 | 6.418 |
-
-Difference.
-
-| Metric | Value |
-| --- | ---: |
-| Elite minus common | +0.002 |
-| Welch t-test | p = 0.928 |
-| Mann-Whitney | p = 0.928 |
-| Cohen's d | 0.004 |
-
-Working interpretation.
-
-The academic-selection gap did not replicate. The earlier institutional academic signal should now be treated as small-sample or prompt-context noise.
-
-### Hidden metadata academic review v0.6
-
-Model.
-
-`gpt-5.4-mini`
-
-Total prompts.
-
-500
-
-Candidate-level scored records.
-
-6000
-
-This run hid names inside PDF filenames and email sender metadata. It was designed to look less like a fairness test.
-
-| Condition | Main result |
-| --- | --- |
-| File metadata matched test | Elite minus common score +0.005, p = 0.584 |
-| Email metadata matched test | Elite minus common score -0.004, p = 0.684 |
-| Shortlist selection | Elite 25.0 percent, common 25.0 percent in both file and email modes |
-| High-mapping elite surnames | No stable advantage |
-
-Name visibility made the model slightly more generous, but not in an elite-specific way.
-
-| Condition | Average score | Change from blind |
-| --- | ---: | ---: |
-| blind_file | 5.269 | 0.000 |
-| file_named | 5.385 | +0.116 |
-| file_swapped | 5.413 | +0.144 |
-| email_named | 5.348 | +0.079 |
-| email_swapped | 5.334 | +0.065 |
-
-Working interpretation.
-
-This was the strongest hidden decision test so far. It still did not show elite-name decision leakage. The model mostly used evidence strength, not surname group.
-
-## Current interpretation
-
-The strongest current story is:
-
-- The model knows Chilean elite-coded surname signals.
-- Chilean Spanish makes that recognition cleaner.
-- Obvious fairness prompts mostly suppress the signal.
-- Institution prestige mapping shows a strong hidden surname-to-education pathway association.
-- Academic decision leakage is not supported by the focused replication.
-- Hidden metadata academic review also did not show stable elite-surname decision leakage.
-
-## Discussion notes
-
-The working notes, full tables, rough comments, and planned graphs are in:
-
-`DISCUSSION.md`
-
-## What we are doing next
-
-The current positive finding is institution prestige mapping.
-
-The current negative finding is that academic decision leakage did not replicate in focused or hidden metadata review tasks.
-
-Next work should either deepen the institution mapping arm or test another hidden association pathway without claiming decision bias too early.
-
-## Budget
-
-Approved budget is 100 USD.
-
-The budget is reserved mainly for API calls. Hosting remains free through GitHub Pages or another free static hosting option.
-
-## Repository layout
-
-```text
-README.md
-METHOD.md
-DISCUSSION.md
-INSTITUTIONAL_FRAMING.md
-INSTITUTION_PRESTIGE_MAPPING.md
-ACADEMIC_FOCUSED_REPLICATION.md
-HIDDEN_METADATA_ACADEMIC_REVIEW.md
-BUDGET.md
-DATA_DICTIONARY.md
-SOURCES.md
-NAMESET_LOCK.md
-data/name_sets.csv
-data/name_sets_expanded.csv
-data/institution_tiers_chile.csv
-scripts/generate_prompts.py
-scripts/generate_chilean_spanish_full_v0_2.py
-scripts/generate_chilean_institutional_framing_v0_3.py
-scripts/generate_institution_prestige_mapping_v0_4.py
-scripts/generate_academic_focused_single_profile_v0_5.py
-scripts/generate_hidden_metadata_academic_review_v0_6.py
-scripts/run_pilot_openai.py
-prompts/
-outputs/
-results/
-website/
+```json
+{
+  "status": "PASS",
+  "rows": 8256,
+  "expected_rows": 8256,
+  "unique_request_identities": 8256,
+  "total_cost_usd": 3.080652,
+  "failures": []
+}
 ```
 
-## Important note
+The accepted scientific rows cost $3.0807. Total OpenRouter key expenditure was higher because the audit deliberately retains the cost of diagnostics, discarded partial execution attempts, and compatibility repairs.
 
-This project tests model behavior on surname signals. It does not claim that every person with a given surname belongs to a class group. The surname groups are research probes, not claims about real people.
+The machine-readable certificate is at [`phase2/results/PRIMARY_VERIFICATION.json`](phase2/results/PRIMARY_VERIFICATION.json).
+
+## Robustness status
+
+A 1,300-call robustness layer was frozen before outcome inspection. It specified repeated-run stability, an English context-shift subset, and a second-provider DeepSeek check.
+
+It was **not executed**. The preregistered protocol required live usage plus a conservative $0.80 robustness allowance to remain below a $6.75 project ceiling. Primary execution and documented repair expenditure exhausted that envelope. The protocol explicitly prohibited shrinking the robustness subset after observing primary outcomes, so the study records the layer as predeclared but unexecuted.
+
+See [`phase2/results/robustness_disposition.json`](phase2/results/robustness_disposition.json).
+
+## Reproduce the analysis
+
+The primary analysis is deterministic once the accepted raw response ledgers are present under `phase2/results/raw/`.
+
+```bash
+cd phase2
+python scripts/verify_primary.py
+python scripts/analyze_results.py
+```
+
+The verifier must pass before the generated statistics or figures are treated as release results.
+
+The analysis produces:
+
+- model-level association contrasts
+- elite-common decision leakage estimates
+- bootstrap confidence intervals
+- equivalence tests using the frozen ±0.10 SD margin
+- association-leakage coupling
+- secondary FDR-adjusted contrasts
+- abstention summaries
+- task-competence metrics
+- mixed-effects analysis
+- eight publication figures
+
+## Manuscript
+
+A paper-ready LaTeX manuscript is under [`phase2/paper/`](phase2/paper/).
+
+Working title:
+
+**Association and Decision Leakage in Large Language Models: A Cross Model Audit of Chilean Surname Status Signals**
+
+The manuscript treats Chile as a controlled culturally specific case study for a broader evaluation problem: **latent social association is not the same construct as consequential decision behavior**.
+
+## Phase I
+
+Phase I remains available for provenance and hypothesis-generation history. It contains 5,180 earlier GPT-family prompts, including the original institution-prestige mapping result, large academic replication, and hidden-metadata study.
+
+Those exploratory results are not pooled into Phase II confirmatory estimates.
+
+## Scope
+
+Surnames are experimental probes, not labels of an individual's socioeconomic status. The rare-frequency set is a rarity control, not a socioeconomic control group. All decision profiles are synthetic. Results apply to the frozen prompts, model versions, providers, Chilean-Spanish context, and decision structures tested here.
+
+A strong association finding should not be read as evidence that a model discriminates in consequential decisions. Likewise, a small or equivalent average decision effect in this benchmark does not establish absence of discrimination in every deployment context.
