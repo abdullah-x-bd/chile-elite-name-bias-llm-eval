@@ -16,7 +16,9 @@ The confirmatory study uses eight frozen model endpoints through OpenRouter, thr
 
 ## Scientific freeze
 
-No Phase II scientific API calls are part of this foundation commit. The frozen manifest contains **1,032 prompts per model** and the frozen eight-model panel yields **8,256 planned primary calls**.
+No Phase II scientific model call is included in this foundation. The deterministic generator produces **1,032 prompts per model** and the frozen eight-model panel yields **8,256 planned primary calls**.
+
+The exact generated scientific manifest is committed by `freeze/manifest_digest.json`. Before any request is sent, the runner regenerates all 1,032 cells from the frozen inputs and code, checks the full manifest digest, and checks each prompt's individual SHA256. A scientific-input change therefore causes the freeze check to fail rather than silently changing the experiment.
 
 The only accepted OpenRouter secret name is:
 
@@ -33,7 +35,7 @@ The key is read from the environment and is never written to logs or committed f
 - `docs/ANALYSIS_PLAN.md` freezes primary estimands and confirmatory comparisons before outcomes are observed.
 - `config/models.json` fixes model and provider identities.
 - `data/frozen/base_profiles_v1.jsonl.gz.b64` contains the deterministic synthetic evidence profiles in a reproducible text-safe compressed archive.
-- `data/frozen/prompt_manifest_v1/part-*.b64` contains the deterministic compressed manifest split into text-safe parts. It represents every scientific cell plus its exact pre-outcome prompt hash. Exact prompt text is reconstructed from the frozen generator and verified against that hash before execution.
+- `freeze/manifest_digest.json` commits the exact deterministic 1,032-cell manifest without duplicating a large generated file.
 - `freeze/study_fingerprint.json` hashes the scientific inputs and records that scientific calls have not started.
 
 ## Build and verify locally
