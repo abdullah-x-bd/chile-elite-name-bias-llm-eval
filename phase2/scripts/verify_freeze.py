@@ -16,9 +16,9 @@ def main():
         if got!=expected: failures.append(f'hash mismatch {rel}: {got} != {expected}')
     if failures:
         print('\n'.join(failures)); raise SystemExit('FAIL: freeze integrity')
-    parts=''.join(p.read_text(encoding='ascii').strip() for p in sorted((ROOT/'data/frozen/prompt_manifest_v1').glob('part-*.b64')))
-    manifest=sum(1 for x in __import__('gzip').decompress(__import__('base64').b64decode(parts)).decode('utf-8').splitlines() if x.strip())
-    profiles=len(__import__('chile_phase2.core',fromlist=['load_jsonl']).load_jsonl(ROOT/'data/frozen/base_profiles_v1.jsonl.gz.b64'))
+    core=__import__('chile_phase2.core',fromlist=['load_manifest','load_jsonl'])
+    manifest=len(core.load_manifest(ROOT))
+    profiles=len(core.load_jsonl(ROOT/'data/frozen/base_profiles_v1.jsonl.gz.b64'))
     if manifest!=1032 or profiles!=192: raise SystemExit('FAIL: frozen counts')
     print('PHASE II FREEZE VERIFICATION: PASS')
     print('study_fingerprint_sha256:',fp['study_fingerprint_sha256'])
