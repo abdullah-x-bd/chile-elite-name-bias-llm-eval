@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        label: [gpt54mini, gpt54nano, claude_sonnet5, gemini36flash, deepseek_v4_flash, qwen37max, mistral_medium35, llama4_maverick]
+        label: [gpt54mini, gpt54nano, claude_sonnet5, gemini36flash, deepseek_v32, qwen37max, mistral_medium35, llama4_maverick]
     env:
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
     steps:
@@ -27,13 +27,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Verify frozen inputs
+      - name: Verify pre-outcome protocol amendment
         working-directory: phase2
-        run: python scripts/verify_freeze.py
-      - name: Inspect active DeepSeek V3.2 endpoints
-        if: matrix.label == 'deepseek_v4_flash'
-        working-directory: phase2
-        run: python scripts/list_deepseek_v32_endpoints.py
+        run: python scripts/verify_amendment1.py
       - name: Exact-routing non-study smoke request
         working-directory: phase2
         run: python scripts/smoke_model.py --label '${{ matrix.label }}'
@@ -51,7 +47,7 @@ jobs:
           - {label: gpt54nano, cap: '0.07'}
           - {label: claude_sonnet5, cap: '2.10'}
           - {label: gemini36flash, cap: '1.60'}
-          - {label: deepseek_v4_flash, cap: '0.10'}
+          - {label: deepseek_v32, cap: '0.12'}
           - {label: qwen37max, cap: '0.55'}
           - {label: mistral_medium35, cap: '0.72'}
           - {label: llama4_maverick, cap: '0.08'}
@@ -62,10 +58,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Verify frozen inputs
+      - name: Verify pre-outcome protocol amendment
         working-directory: phase2
-        run: python scripts/verify_freeze.py
-      - name: Run one frozen model panel cell
+        run: python scripts/verify_amendment1.py
+      - name: Run one amended frozen model panel cell
         working-directory: phase2
         run: python scripts/run_one_model.py --label '${{ matrix.label }}' --cap-usd '${{ matrix.cap }}'
       - name: Upload raw model results
@@ -86,6 +82,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Verify pre-outcome protocol amendment
+        working-directory: phase2
+        run: python scripts/verify_amendment1.py
       - name: Download all raw results
         uses: actions/download-artifact@v4
         with:
