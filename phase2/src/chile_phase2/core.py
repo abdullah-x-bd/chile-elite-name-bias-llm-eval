@@ -66,7 +66,6 @@ def generate_profiles(seed: int=20260810, per_domain: int=48) -> list[dict]:
     rng=random.Random(seed); out=[]
     for d_i,(domain,spec) in enumerate(DOMAINS.items()):
         for i in range(per_domain):
-            # Stratified deterministic evidence: avoid all profiles clustering in one score band.
             anchor = 1 + ((i + d_i) % 5)
             vals=[]
             for j in range(4):
@@ -131,34 +130,28 @@ def generate_manifest(root: Path, profiles: list[dict]) -> list[dict]:
     surnames=load_csv(root/'data/frozen/surnames_v1.csv'); givens=load_csv(root/'data/frozen/given_names_v1.csv')
     groups={g:[r for r in surnames if r['group']==g] for g in ['elite_coded','common_frequency','rare_frequency']}
     rows=[]
-    # Association: 30 surnames x 2 domains x forced/abstention = 120.
-    for s_i,s in enumerate(surnames):
+    for s in surnames:
         for domain in ASSOCIATION_DOMAINS:
             for abstain in [False,True]:
                 instrument=f"association_{domain}_{'abstention' if abstain else 'forced'}"
                 text=render_association(s['surname'],domain,abstain)
                 pid=f"assoc::{s['group']}::{slugify_name(s['surname'])}::{domain}::{int(abstain)}"
                 rows.append({'prompt_id':pid,'bank':'association','domain':domain,'instrument':instrument,'base_profile_id':None,'condition':s['group'],'surname':s['surname'],'surname_group':s['group'],'given_name':None,'visibility':'surname_only','decision_mode':None,'schema':association_schema(domain,abstain),'prompt_text':text,'prompt_sha256':sha256_text(text)})
-    # Decision banks.
     for p_idx,p in enumerate(profiles):
         given=givens[p_idx % len(givens)]['given_name']
         elite=_name_for(groups['elite_coded'],p_idx)
         common=_name_for(groups['common_frequency'],p_idx)
         rare=_name_for(groups['rare_frequency'],p_idx)
-        # Primary structured-visible: blind, elite, common for all profiles.
         for cond,surname,group in [('blind',None,'blind'),('elite',elite,'elite_coded'),('common',common,'common_frequency')]:
             text=render_decision(p,cond,given if surname else None,surname,'structured',False)
             pid=f"decision::main::{p['profile_id']}::{cond}"
             rows.append({'prompt_id':pid,'bank':'decision_main','domain':p['domain'],'instrument':'structured_visible','base_profile_id':p['profile_id'],'condition':cond,'surname':surname,'surname_group':group,'given_name':given if surname else None,'visibility':'visible' if surname else 'blind','decision_mode':'structured','schema':DECISION_SCHEMA,'prompt_text':text,'prompt_sha256':sha256_text(text)})
         if p_idx % 4 == 0:
-            # rare frequency visible secondary control
             text=render_decision(p,'rare',given,rare,'structured',False)
             rows.append({'prompt_id':f"decision::rare::{p['profile_id']}::rare",'bank':'decision_rare','domain':p['domain'],'instrument':'structured_visible_rare','base_profile_id':p['profile_id'],'condition':'rare','surname':rare,'surname_group':'rare_frequency','given_name':given,'visibility':'visible','decision_mode':'structured','schema':DECISION_SCHEMA,'prompt_text':text,'prompt_sha256':sha256_text(text)})
-            # metadata subset
             for cond,surname,group in [('blind_metadata',None,'blind'),('elite_metadata',elite,'elite_coded'),('common_metadata',common,'common_frequency')]:
                 text=render_decision(p,cond,given if surname else None,surname,'structured',True)
                 rows.append({'prompt_id':f"decision::metadata::{p['profile_id']}::{cond}",'bank':'decision_metadata','domain':p['domain'],'instrument':'structured_metadata','base_profile_id':p['profile_id'],'condition':cond,'surname':surname,'surname_group':group,'given_name':given if surname else None,'visibility':'metadata' if surname else 'blind_metadata','decision_mode':'structured','schema':DECISION_SCHEMA,'prompt_text':text,'prompt_sha256':sha256_text(text)})
-            # holistic visible subset
             for cond,surname,group in [('blind',None,'blind'),('elite',elite,'elite_coded'),('common',common,'common_frequency')]:
                 text=render_decision(p,cond,given if surname else None,surname,'holistic',False)
                 rows.append({'prompt_id':f"decision::holistic::{p['profile_id']}::{cond}",'bank':'decision_holistic','domain':p['domain'],'instrument':'holistic_visible','base_profile_id':p['profile_id'],'condition':cond,'surname':surname,'surname_group':group,'given_name':given if surname else None,'visibility':'visible' if surname else 'blind','decision_mode':'holistic','schema':DECISION_SCHEMA,'prompt_text':text,'prompt_sha256':sha256_text(text)})
@@ -187,51 +180,21 @@ def load_jsonl(path: Path) -> list[dict]:
     with path.open(encoding='utf-8') as f: return [json.loads(x) for x in f if x.strip()]
 
 def compact_manifest(rows: list[dict]) -> list[dict]:
-    """Store cells and exact prompt hashes without repeating prompt bodies/schemas.
-
-    Exact prompt text is a deterministic function of this row plus the frozen
-    generator code and base profile file. materialize_manifest reconstructs it
-    and verifies the pre-outcome hash before any request can be sent.
-    """
     return [{k:v for k,v in row.items() if k not in ('prompt_text','schema')} for row in rows]
 
-def _schema_for_row(row: dict) -> dict:
-    if row['bank']=='association':
-        return association_schema(row['domain'], row['instrument'].endswith('_abstention'))
-    return DECISION_SCHEMA
-
-def materialize_manifest(root: Path, compact_rows: list[dict], profiles: list[dict]|None=None) -> list[dict]:
-    if profiles is None: profiles=load_jsonl(root/'data/frozen/base_profiles_v1.jsonl.gz.b64')
-    pmap={p['profile_id']:p for p in profiles}
-    out=[]
-    for row0 in compact_rows:
-        row=dict(row0)
-        if row['bank']=='association':
-            text=render_association(row['surname'],row['domain'],row['instrument'].endswith('_abstention'))
-        else:
-            p=pmap[row['base_profile_id']]
-            text=render_decision(p,row['condition'],row.get('given_name'),row.get('surname'),row['decision_mode'],row['visibility'] in ('metadata','blind_metadata'))
-        if sha256_text(text)!=row['prompt_sha256']:
-            raise RuntimeError(f"Prompt hash mismatch during materialization: {row['prompt_id']}")
-        row['prompt_text']=text; row['schema']=_schema_for_row(row); out.append(row)
-    return out
-
-def write_manifest_parts(root: Path, rows: list[dict], parts: int=3):
-    payload=''.join(json.dumps(row,ensure_ascii=False,sort_keys=True)+'\n' for row in rows).encode('utf-8')
-    buf=io.BytesIO()
-    with gzip.GzipFile(filename='',mode='wb',fileobj=buf,mtime=0,compresslevel=9) as gz: gz.write(payload)
-    text=base64.b64encode(buf.getvalue()).decode('ascii')
-    width=((len(text)+parts-1)//parts + 3)//4*4
-    folder=root/'data/frozen/prompt_manifest_v1'; folder.mkdir(parents=True,exist_ok=True)
-    for old in folder.glob('part-*.b64'): old.unlink()
-    chunks=[text[i:i+width] for i in range(0,len(text),width)]
-    for i,chunk in enumerate(chunks): (folder/f'part-{i:03d}.b64').write_text(chunk+'\n',encoding='ascii')
+def manifest_digest(rows: list[dict]) -> str:
+    compact=compact_manifest(rows)
+    payload=''.join(json.dumps(row,ensure_ascii=False,sort_keys=True)+'\n' for row in compact).encode('utf-8')
+    return hashlib.sha256(payload).hexdigest()
 
 def load_manifest(root: Path) -> list[dict]:
-    folder=root/'data/frozen/prompt_manifest_v1'
-    text=''.join(p.read_text(encoding='ascii').strip() for p in sorted(folder.glob('part-*.b64')))
-    raw=base64.b64decode(text); compact=[json.loads(x) for x in gzip.decompress(raw).decode('utf-8').splitlines() if x.strip()]
-    return materialize_manifest(root,compact)
+    profiles=load_jsonl(root/'data/frozen/base_profiles_v1.jsonl.gz.b64')
+    rows=generate_manifest(root,profiles)
+    frozen=json.loads((root/'freeze/manifest_digest.json').read_text(encoding='utf-8'))
+    got=manifest_digest(rows)
+    if got!=frozen['compact_manifest_sha256'] or len(rows)!=frozen['row_count']:
+        raise RuntimeError(f"Frozen manifest commitment mismatch: {got}")
+    return rows
 
 def validate_manifest(rows: list[dict], profiles: list[dict]):
     assert len(rows)==1032
@@ -240,7 +203,6 @@ def validate_manifest(rows: list[dict], profiles: list[dict]):
     assert banks=={'decision_main':576,'decision_metadata':144,'decision_holistic':144,'association':120,'decision_rare':48}, banks
     ids=[r['prompt_id'] for r in rows]; assert len(ids)==len(set(ids))
     pmap={p['profile_id']:p for p in profiles}
-    # Counterfactual identity: every main profile has exactly 3 renderings and same base id/evidence object.
     for pid in pmap:
         cells=[r for r in rows if r['bank']=='decision_main' and r['base_profile_id']==pid]
         assert {c['condition'] for c in cells}=={'blind','elite','common'}
@@ -250,7 +212,7 @@ def validate_manifest(rows: list[dict], profiles: list[dict]):
 def cli_build():
     root=Path(__file__).resolve().parents[2]
     profiles=generate_profiles(); write_jsonl(root/'data/frozen/base_profiles_v1.jsonl.gz.b64',profiles)
-    manifest=generate_manifest(root,profiles); write_manifest_parts(root,compact_manifest(manifest))
+    manifest=generate_manifest(root,profiles)
     validate_manifest(manifest,profiles)
     print(f"PASS: {len(profiles)} profiles, {len(manifest)} prompts/model")
 
