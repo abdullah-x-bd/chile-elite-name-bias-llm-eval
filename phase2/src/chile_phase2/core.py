@@ -201,7 +201,7 @@ def _schema_for_row(row: dict) -> dict:
     return DECISION_SCHEMA
 
 def materialize_manifest(root: Path, compact_rows: list[dict], profiles: list[dict]|None=None) -> list[dict]:
-    if profiles is None: profiles=load_jsonl(root/'data/frozen/base_profiles_v1.jsonl')
+    if profiles is None: profiles=load_jsonl(root/'data/frozen/base_profiles_v1.jsonl.gz.b64')
     pmap={p['profile_id']:p for p in profiles}
     out=[]
     for row0 in compact_rows:
@@ -216,8 +216,21 @@ def materialize_manifest(root: Path, compact_rows: list[dict], profiles: list[di
         row['prompt_text']=text; row['schema']=_schema_for_row(row); out.append(row)
     return out
 
+def write_manifest_parts(root: Path, rows: list[dict], parts: int=3):
+    payload=''.join(json.dumps(row,ensure_ascii=False,sort_keys=True)+'\n' for row in rows).encode('utf-8')
+    buf=io.BytesIO()
+    with gzip.GzipFile(filename='',mode='wb',fileobj=buf,mtime=0,compresslevel=9) as gz: gz.write(payload)
+    text=base64.b64encode(buf.getvalue()).decode('ascii')
+    width=((len(text)+parts-1)//parts + 3)//4*4
+    folder=root/'data/frozen/prompt_manifest_v1'; folder.mkdir(parents=True,exist_ok=True)
+    for old in folder.glob('part-*.b64'): old.unlink()
+    chunks=[text[i:i+width] for i in range(0,len(text),width)]
+    for i,chunk in enumerate(chunks): (folder/f'part-{i:03d}.b64').write_text(chunk+'\n',encoding='ascii')
+
 def load_manifest(root: Path) -> list[dict]:
-    compact=load_jsonl(root/'data/frozen/prompt_manifest_v1.jsonl.gz.b64')
+    folder=root/'data/frozen/prompt_manifest_v1'
+    text=''.join(p.read_text(encoding='ascii').strip() for p in sorted(folder.glob('part-*.b64')))
+    raw=base64.b64decode(text); compact=[json.loads(x) for x in gzip.decompress(raw).decode('utf-8').splitlines() if x.strip()]
     return materialize_manifest(root,compact)
 
 def validate_manifest(rows: list[dict], profiles: list[dict]):
@@ -236,8 +249,8 @@ def validate_manifest(rows: list[dict], profiles: list[dict]):
 
 def cli_build():
     root=Path(__file__).resolve().parents[2]
-    profiles=generate_profiles(); write_jsonl(root/'data/frozen/base_profiles_v1.jsonl',profiles)
-    manifest=generate_manifest(root,profiles); write_jsonl(root/'data/frozen/prompt_manifest_v1.jsonl.gz.b64',compact_manifest(manifest))
+    profiles=generate_profiles(); write_jsonl(root/'data/frozen/base_profiles_v1.jsonl.gz.b64',profiles)
+    manifest=generate_manifest(root,profiles); write_manifest_parts(root,compact_manifest(manifest))
     validate_manifest(manifest,profiles)
     print(f"PASS: {len(profiles)} profiles, {len(manifest)} prompts/model")
 
