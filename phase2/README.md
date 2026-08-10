@@ -33,7 +33,7 @@ The key is read from the environment and is never written to logs or committed f
 - `docs/ANALYSIS_PLAN.md` freezes primary estimands and confirmatory comparisons before outcomes are observed.
 - `config/models.json` fixes model and provider identities.
 - `data/frozen/base_profiles_v1.jsonl` contains deterministic synthetic evidence profiles.
-- `data/frozen/prompt_manifest_v1.jsonl` contains every scientific cell plus its exact pre-outcome prompt hash. Exact prompt text is deterministically reconstructed from the frozen generator and verified against that hash before execution.
+- `data/frozen/prompt_manifest_v1.jsonl.gz.b64` is a deterministic, text-safe compressed archive containing every scientific cell plus its exact pre-outcome prompt hash. Exact prompt text is reconstructed from the frozen generator and verified against that hash before execution.
 - `freeze/study_fingerprint.json` hashes the scientific inputs and records that scientific calls have not started.
 
 ## Build and verify locally
