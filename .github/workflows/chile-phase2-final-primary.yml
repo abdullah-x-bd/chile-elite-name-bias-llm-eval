@@ -23,26 +23,31 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Verify Claude Amendment 6
-        working-directory: phase2
-        run: python scripts/verify_amendment6.py
-      - name: Snapshot and gate live budget
+      - name: Verify repair freezes
         working-directory: phase2
         run: |
-          python scripts/capture_openrouter_usage.py --label before_claude_amendment6
+          python scripts/verify_amendment4.py
+          python scripts/verify_amendment5.py
+          python scripts/verify_amendment6.py
+      - name: Snapshot and gate live budget while reserving robustness allowance
+        working-directory: phase2
+        run: |
+          python scripts/capture_openrouter_usage.py --label before_final_sharded_repairs
           python - <<'PY'
           import json
-          x=json.load(open('results/openrouter_usage_before_claude_amendment6.json'))
+          x=json.load(open('results/openrouter_usage_before_final_sharded_repairs.json'))
           usage=float(x['usage_usd'])
-          allowance=3.04
-          if usage+allowance>6.75:
-              raise SystemExit(f'CLAUDE 6 BUDGET GATE: STOP ${usage:.4f}+${allowance:.2f}>$6.75')
-          print(f'CLAUDE 6 BUDGET GATE: PASS usage=${usage:.4f}, max shard envelope=${allowance:.2f}')
+          # 3.32 is the sum of all final shard caps. Add 0.20 for any concurrently finishing superseded repair jobs.
+          worst_case_increment=3.52
+          primary_ceiling=5.95  # preserves the predeclared $0.80 robustness allowance under the $6.75 project ceiling
+          if usage+worst_case_increment>primary_ceiling:
+              raise SystemExit(f'FINAL PRIMARY BUDGET GATE: STOP ${usage:.4f}+${worst_case_increment:.2f}>${primary_ceiling:.2f}')
+          print(f'FINAL PRIMARY BUDGET GATE: PASS usage=${usage:.4f}, worst-case added=${worst_case_increment:.2f}, primary ceiling=${primary_ceiling:.2f}')
           PY
       - uses: actions/upload-artifact@v4
         with:
           name: final-primary-budget-before
-          path: phase2/results/openrouter_usage_before_claude_amendment6.json
+          path: phase2/results/openrouter_usage_before_final_sharded_repairs.json
           retention-days: 30
 
   claude6:
@@ -56,8 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+        with: {python-version: '3.12'}
       - name: Verify Claude Amendment 6
         working-directory: phase2
         run: python scripts/verify_amendment6.py
@@ -71,15 +75,64 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+  gptnano4:
+    needs: budget-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Verify Amendment 4
+        working-directory: phase2
+        run: python scripts/verify_amendment4.py
+      - name: Run deterministic GPT Nano Amendment 4 shard
+        working-directory: phase2
+        run: python scripts/run_gptnano_amendment4_shard.py --shard-index '${{ matrix.shard }}' --shard-count 4 --cap-usd 0.04
+      - uses: actions/upload-artifact@v4
+        with:
+          name: final-gptnano-shard-${{ matrix.shard }}
+          path: phase2/results/raw/gpt54nano_shard*.jsonl
+          if-no-files-found: error
+          retention-days: 30
+
+  deepseek5:
+    needs: budget-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Verify Amendment 5
+        working-directory: phase2
+        run: python scripts/verify_amendment5.py
+      - name: Run deterministic DeepSeek Amendment 5 shard
+        working-directory: phase2
+        run: python scripts/run_deepseek_amendment5_shard.py --shard-index '${{ matrix.shard }}' --shard-count 4 --cap-usd 0.03
+      - uses: actions/upload-artifact@v4
+        with:
+          name: final-deepseek-shard-${{ matrix.shard }}
+          path: phase2/results/raw/deepseek_v32_shard*.jsonl
+          if-no-files-found: error
+          retention-days: 30
+
   analyze:
-    needs: claude6
+    needs: [claude6, gptnano4, deepseek5]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+        with: {python-version: '3.12'}
       - name: Verify execution freezes
         working-directory: phase2
         run: |
@@ -94,21 +147,21 @@ jobs:
           gh run download 31397776217 -n primary-qwen37max -D phase2/results/raw
           gh run download 31397776217 -n primary-mistral_medium35 -D phase2/results/raw
           gh run download 31397776217 -n primary-llama4_maverick -D phase2/results/raw
-      - name: Recover GPT Nano and DeepSeek repaired artifacts
-        run: |
-          gh run download 31401184257 -n repair-gpt54nano -D phase2/results/raw
-          gh run download 31401184257 -n repair-deepseek_v32 -D phase2/results/raw
-      - name: Download all final Claude shards
+      - name: Download all final repair shards
         uses: actions/download-artifact@v4
         with:
-          pattern: final-claude-shard-*
-          path: phase2/results/final-claude-shards
+          pattern: final-*-shard-*
+          path: phase2/results/final-shards
           merge-multiple: true
-      - name: Recombine exact Claude cell
+      - name: Recombine exact repaired cells
         run: |
-          cat phase2/results/final-claude-shards/claude_sonnet5_shard*.jsonl > phase2/results/raw/claude_sonnet5.jsonl
+          cat phase2/results/final-shards/claude_sonnet5_shard*.jsonl > phase2/results/raw/claude_sonnet5.jsonl
+          cat phase2/results/final-shards/gpt54nano_shard*.jsonl > phase2/results/raw/gpt54nano.jsonl
+          cat phase2/results/final-shards/deepseek_v32_shard*.jsonl > phase2/results/raw/deepseek_v32.jsonl
           test "$(grep -c . phase2/results/raw/claude_sonnet5.jsonl)" -eq 1032
-      - name: Retain pre-Claude budget snapshot
+          test "$(grep -c . phase2/results/raw/gpt54nano.jsonl)" -eq 1032
+          test "$(grep -c . phase2/results/raw/deepseek_v32.jsonl)" -eq 1032
+      - name: Retain pre-repair budget snapshot
         uses: actions/download-artifact@v4
         with:
           name: final-primary-budget-before
