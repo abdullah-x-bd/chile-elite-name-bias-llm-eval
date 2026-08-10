@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chile-association-leakage-phase2"
+version = "0.1.0"
+description = "Frozen multi-model confirmatory evaluation of Chilean surname association and decision leakage"
+requires-python = ">=3.11"
+authors = [{name = "Abdullah X"}]
+dependencies = []
+
+[project.scripts]
+chile-phase2-build = "chile_phase2.core:cli_build"
+chile-phase2-run = "chile_phase2.openrouter:cli_run"
+
+[tool.setuptools.packages.find]
+where = ["src"]
