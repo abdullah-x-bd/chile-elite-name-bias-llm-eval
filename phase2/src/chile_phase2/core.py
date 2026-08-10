@@ -1,5 +1,5 @@
 from __future__ import annotations
-import csv, gzip, hashlib, json, random, re
+import base64, csv, gzip, hashlib, io, json, random, re
 from pathlib import Path
 
 DOMAINS = {
@@ -167,16 +167,21 @@ def generate_manifest(root: Path, profiles: list[dict]) -> list[dict]:
     return rows
 
 def write_jsonl(path: Path, rows: list[dict]):
-    if str(path).endswith('.gz'):
+    payload=''.join(json.dumps(row,ensure_ascii=False,sort_keys=True)+'\n' for row in rows).encode('utf-8')
+    if str(path).endswith('.gz.b64'):
+        buf=io.BytesIO()
+        with gzip.GzipFile(filename='',mode='wb',fileobj=buf,mtime=0,compresslevel=9) as gz: gz.write(payload)
+        path.write_text(base64.b64encode(buf.getvalue()).decode('ascii')+'\n',encoding='ascii')
+    elif str(path).endswith('.gz'):
         with path.open('wb') as raw:
-            with gzip.GzipFile(filename='',mode='wb',fileobj=raw,mtime=0,compresslevel=9) as gz:
-                payload=''.join(json.dumps(row,ensure_ascii=False,sort_keys=True)+'\n' for row in rows).encode('utf-8')
-                gz.write(payload)
+            with gzip.GzipFile(filename='',mode='wb',fileobj=raw,mtime=0,compresslevel=9) as gz: gz.write(payload)
     else:
-        with path.open('w',encoding='utf-8') as f:
-            for row in rows: f.write(json.dumps(row,ensure_ascii=False,sort_keys=True)+"\n")
+        path.write_bytes(payload)
 
 def load_jsonl(path: Path) -> list[dict]:
+    if str(path).endswith('.gz.b64'):
+        raw=base64.b64decode(path.read_text(encoding='ascii')); text=gzip.decompress(raw).decode('utf-8')
+        return [json.loads(x) for x in text.splitlines() if x.strip()]
     if str(path).endswith('.gz'):
         with gzip.open(path,'rt',encoding='utf-8') as f: return [json.loads(x) for x in f if x.strip()]
     with path.open(encoding='utf-8') as f: return [json.loads(x) for x in f if x.strip()]
@@ -212,7 +217,7 @@ def materialize_manifest(root: Path, compact_rows: list[dict], profiles: list[di
     return out
 
 def load_manifest(root: Path) -> list[dict]:
-    compact=load_jsonl(root/'data/frozen/prompt_manifest_v1.jsonl')
+    compact=load_jsonl(root/'data/frozen/prompt_manifest_v1.jsonl.gz.b64')
     return materialize_manifest(root,compact)
 
 def validate_manifest(rows: list[dict], profiles: list[dict]):
@@ -232,7 +237,7 @@ def validate_manifest(rows: list[dict], profiles: list[dict]):
 def cli_build():
     root=Path(__file__).resolve().parents[2]
     profiles=generate_profiles(); write_jsonl(root/'data/frozen/base_profiles_v1.jsonl',profiles)
-    manifest=generate_manifest(root,profiles); write_jsonl(root/'data/frozen/prompt_manifest_v1.jsonl',compact_manifest(manifest))
+    manifest=generate_manifest(root,profiles); write_jsonl(root/'data/frozen/prompt_manifest_v1.jsonl.gz.b64',compact_manifest(manifest))
     validate_manifest(manifest,profiles)
     print(f"PASS: {len(profiles)} profiles, {len(manifest)} prompts/model")
 
