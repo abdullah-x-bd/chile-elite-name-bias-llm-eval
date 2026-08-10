@@ -1,0 +1,18 @@
+{
+  "amendment": 9,
+  "amendment8_fingerprint_sha256": "9f8bee929c670599f1fc034c40088203ec2c7ebd11707ed0bd0e91cef4bfcb10",
+  "scientific_response_values_inspected": false,
+  "affected_cell": "mistral_medium35",
+  "affected_prompt_id": "assoc::common_frequency::flores::school_sector::1",
+  "scientific_prompt_changed": false,
+  "semantic_invalid_policy": "retry_identical_request_up_to_existing_retry_limit",
+  "verifier_failure": "abstention_probabilities_not_zero",
+  "failed_release_rows": 8256,
+  "failed_release_unique_request_identities": 8256,
+  "file_hash_algorithm": "git-blob-sha1",
+  "file_hashes": {
+    "docs/PROTOCOL_AMENDMENT_9.md": "f68ee0f6c9cf5e350d681174a68d263943682d38",
+    "scripts/run_mistral_amendment9.py": "dbbcea4c8c2475eeb89fa78f091d74527e1729a0"
+  },
+  "amendment_fingerprint_sha256": "8302b6e9634521f0184704bf4d27c231bcb3fe0839c35f01d176f8e08912a6d5"
+}
