@@ -1,0 +1,42 @@
+name: Chile Phase II Offline Analysis Validation
+
+on:
+  pull_request:
+    paths:
+      - 'phase2/execution/offline_analysis_trigger.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install analysis dependencies
+        run: python -m pip install --disable-pip-version-check numpy pandas scipy matplotlib statsmodels
+      - name: Verify freeze
+        working-directory: phase2
+        run: python scripts/verify_freeze.py
+      - name: Generate disposable 8,256-row fixture
+        working-directory: phase2
+        run: python scripts/generate_synthetic_results.py
+      - name: Verify fixture with production release verifier
+        working-directory: phase2
+        run: python scripts/verify_primary.py
+      - name: Exercise production analysis pipeline
+        working-directory: phase2
+        run: python scripts/analyze_results.py
+      - name: Confirm expected outputs exist
+        working-directory: phase2
+        run: |
+          test -f results/RESULTS.md
+          test -f results/tables/primary_association.csv
+          test -f results/tables/primary_decision_leakage.csv
+          test -f results/statistics/summary.json
+          test -f results/figures/08_competence_vs_leakage.png
+          echo 'OFFLINE ANALYSIS VALIDATION: PASS'
