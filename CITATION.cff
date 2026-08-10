@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this research artifact, please cite the repository and accompanying manuscript."
+title: "Association and Decision Leakage in Large Language Models"
+type: software
+authors:
+  - family-names: "X"
+    given-names: "Abdullah"
+repository-code: "https://github.com/abdullah-x-bd/chile-elite-name-bias-llm-eval"
+url: "https://github.com/abdullah-x-bd/chile-elite-name-bias-llm-eval"
+license: MIT
+keywords:
+  - large language models
+  - algorithmic bias
+  - socioeconomic association
+  - decision leakage
+  - model evaluation
+  - Chile
+preferred-citation:
+  type: article
+  title: "Association and Decision Leakage in Large Language Models: A Cross-Model Audit of Chilean Surname Status Signals"
+  authors:
+    - family-names: "X"
+      given-names: "Abdullah"
+  year: 2026
