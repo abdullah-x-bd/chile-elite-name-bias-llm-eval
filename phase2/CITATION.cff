@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use the Phase II benchmark, code, or results, please cite this work."
+title: "Chilean Surname Association and Decision Leakage in Large Language Models"
+type: software
+authors:
+  - family-names: "X"
+    given-names: "Abdullah"
+repository-code: "https://github.com/abdullah-x-bd/chile-elite-name-bias-llm-eval"
+license: MIT
+version: 1.0.0
+date-released: 2026-08-10
+keywords:
+  - large language models
+  - algorithmic bias
+  - construct validity
+  - evaluation
+  - Chile
+  - socioeconomic status
+  - counterfactual fairness
