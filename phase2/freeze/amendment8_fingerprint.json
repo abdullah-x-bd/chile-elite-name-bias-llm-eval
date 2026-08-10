@@ -1,0 +1,25 @@
+{
+  "amendment": 8,
+  "amendment7_fingerprint_sha256": "021a372f68b7da72ddf0f80dff47c3d6710259f834185e42ca7f683fa06f652f",
+  "scientific_response_values_inspected": false,
+  "affected_cell": "claude_sonnet5",
+  "affected_shards": [1, 7],
+  "scientific_prompt_changed": false,
+  "max_tokens": 160,
+  "reasoning_override": {"enabled": false, "exclude": true},
+  "semantic_invalid_policy": "retry_identical_request_up_to_existing_retry_limit",
+  "amendment7_run_id": 31405985125,
+  "amendment7_shard1_completed_requests": 129,
+  "amendment7_shard1_cost_usd": 0.1739,
+  "amendment7_shard1_artifact_published": false,
+  "amendment7_shard7_scientific_calls_started": false,
+  "expected_prompts_per_shard": 129,
+  "manifest_digest": "280bf06a20a2a3d346340a1d22d4496027c1cda574601121685fc0e37efdb2ff",
+  "file_hash_algorithm": "git-blob-sha1",
+  "file_hashes": {
+    "docs/PROTOCOL_AMENDMENT_8.md": "fd9ee8d4affe2f006f1d54e2716434d364dca4aa",
+    "src/chile_phase2/execution_amendment8.py": "c30400e6a136417979f43e2d03b10a0bcfbbdb20",
+    "scripts/run_claude_amendment8_shard.py": "a25b4767d4132de75e7ff774895854c32b5ff7b2"
+  },
+  "amendment_fingerprint_sha256": "9f8bee929c670599f1fc034c40088203ec2c7ebd11707ed0bd0e91cef4bfcb10"
+}
