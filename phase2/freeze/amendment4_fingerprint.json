@@ -1,0 +1,18 @@
+{
+  "amendment": 4,
+  "amendment3_fingerprint_sha256": "5df71914a146dc4b8ee23163031c4875b94c281d7d5143b5391e0704d3c5e9ec",
+  "scientific_response_values_inspected": false,
+  "affected_cell": "gpt54nano",
+  "scientific_settings_changed": false,
+  "old_cell_cap_usd": 0.07,
+  "new_cell_cap_usd": 0.10,
+  "discarded_unrecovered_cost_approx_usd": 0.0600,
+  "expected_prompts": 1032,
+  "file_hash_algorithm": "git-blob-sha1",
+  "file_hashes": {
+    "docs/PROTOCOL_AMENDMENT_4.md": "0772eb5b8b207459453307e31e72511a183fce2a",
+    "scripts/run_gptnano_repair.py": "de76eff79f015f3cf80c7469bd7471f261c5b770"
+  },
+  "manifest_digest": "280bf06a20a2a3d346340a1d22d4496027c1cda574601121685fc0e37efdb2ff",
+  "amendment_fingerprint_sha256": "afda642c2167c63bd56b6087884181842bdc00bb924d2a1b5d8b65773c86eb01"
+}
