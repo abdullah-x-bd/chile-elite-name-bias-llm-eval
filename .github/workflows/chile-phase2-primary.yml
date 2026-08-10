@@ -30,7 +30,12 @@ jobs:
       - name: Verify pre-outcome protocol amendment
         working-directory: phase2
         run: python scripts/verify_amendment1.py
+      - name: Diagnose DeepSeek generation configuration without scientific prompts
+        if: matrix.label == 'deepseek_v32'
+        working-directory: phase2
+        run: python scripts/diagnose_deepseek_v32.py
       - name: Exact-routing non-study smoke request
+        if: matrix.label != 'deepseek_v32'
         working-directory: phase2
         run: python scripts/smoke_model.py --label '${{ matrix.label }}'
 
