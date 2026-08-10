@@ -15,9 +15,9 @@ env:
   OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
 jobs:
-  claude6:
+  budget-gate:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -26,7 +26,7 @@ jobs:
       - name: Verify Claude Amendment 6
         working-directory: phase2
         run: python scripts/verify_amendment6.py
-      - name: Snapshot and gate live budget before final Claude cell
+      - name: Snapshot and gate live budget
         working-directory: phase2
         run: |
           python scripts/capture_openrouter_usage.py --label before_claude_amendment6
@@ -34,19 +34,40 @@ jobs:
           import json
           x=json.load(open('results/openrouter_usage_before_claude_amendment6.json'))
           usage=float(x['usage_usd'])
-          if usage+2.70>6.75:
-              raise SystemExit(f'CLAUDE 6 BUDGET GATE: STOP ${usage:.4f}+$2.70>$6.75')
-          print(f'CLAUDE 6 BUDGET GATE: PASS usage=${usage:.4f}')
+          allowance=3.04
+          if usage+allowance>6.75:
+              raise SystemExit(f'CLAUDE 6 BUDGET GATE: STOP ${usage:.4f}+${allowance:.2f}>$6.75')
+          print(f'CLAUDE 6 BUDGET GATE: PASS usage=${usage:.4f}, max shard envelope=${allowance:.2f}')
           PY
-      - name: Run complete Claude cell under Amendment 6
-        working-directory: phase2
-        run: python scripts/run_claude_amendment6.py
       - uses: actions/upload-artifact@v4
         with:
-          name: final-claude_sonnet5
-          path: |
-            phase2/results/raw/claude_sonnet5.jsonl
-            phase2/results/openrouter_usage_before_claude_amendment6.json
+          name: final-primary-budget-before
+          path: phase2/results/openrouter_usage_before_claude_amendment6.json
+          retention-days: 30
+
+  claude6:
+    needs: budget-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3,4,5,6,7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify Claude Amendment 6
+        working-directory: phase2
+        run: python scripts/verify_amendment6.py
+      - name: Run deterministic Claude Amendment 6 shard
+        working-directory: phase2
+        run: python scripts/run_claude_amendment6_shard.py --shard-index '${{ matrix.shard }}' --shard-count 8 --cap-usd 0.38
+      - uses: actions/upload-artifact@v4
+        with:
+          name: final-claude-shard-${{ matrix.shard }}
+          path: phase2/results/raw/claude_sonnet5_shard*.jsonl
           if-no-files-found: error
           retention-days: 30
 
@@ -77,16 +98,21 @@ jobs:
         run: |
           gh run download 31401184257 -n repair-gpt54nano -D phase2/results/raw
           gh run download 31401184257 -n repair-deepseek_v32 -D phase2/results/raw
-      - name: Download final Claude artifact
+      - name: Download all final Claude shards
         uses: actions/download-artifact@v4
         with:
-          name: final-claude_sonnet5
-          path: phase2/results/final-claude
-      - name: Install Claude raw ledger and retain budget snapshot
+          pattern: final-claude-shard-*
+          path: phase2/results/final-claude-shards
+          merge-multiple: true
+      - name: Recombine exact Claude cell
         run: |
-          cp phase2/results/final-claude/claude_sonnet5.jsonl phase2/results/raw/claude_sonnet5.jsonl
-          cp phase2/results/final-claude/openrouter_usage_before_claude_amendment6.json phase2/results/
-          ls -lh phase2/results/raw
+          cat phase2/results/final-claude-shards/claude_sonnet5_shard*.jsonl > phase2/results/raw/claude_sonnet5.jsonl
+          test "$(grep -c . phase2/results/raw/claude_sonnet5.jsonl)" -eq 1032
+      - name: Retain pre-Claude budget snapshot
+        uses: actions/download-artifact@v4
+        with:
+          name: final-primary-budget-before
+          path: phase2/results
       - name: Snapshot OpenRouter usage after final primary collection
         working-directory: phase2
         run: python scripts/capture_openrouter_usage.py --label after_final_primary
