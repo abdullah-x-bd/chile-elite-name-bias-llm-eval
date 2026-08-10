@@ -3,7 +3,8 @@ import argparse, json, sys, urllib.error
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 from chile_phase2.core import DECISION_SCHEMA, sha256_text
-from chile_phase2.openrouter import run_exact, verify_frozen_models
+from chile_phase2.openrouter import verify_frozen_models
+from chile_phase2.execution_amendment1 import run_exact_amendment1
 
 
 def main():
@@ -15,7 +16,7 @@ def main():
     text='Prueba técnica no científica. Devuelve exactamente score=50, recommendation="advance" y confidence=50 en el esquema JSON solicitado.'
     prompt={'prompt_id':f"technical-smoke::{args.label}",'bank':'decision_main','domain':'technical_smoke','instrument':'technical_smoke','base_profile_id':None,'condition':'technical_smoke','surname':None,'surname_group':'none','given_name':None,'visibility':'none','decision_mode':'structured','schema':DECISION_SCHEMA,'prompt_text':text,'prompt_sha256':sha256_text(text)}
     try:
-        result=run_exact(model,prompt,study,0.0,max_retries=3)
+        result=run_exact_amendment1(model,prompt,study,0.0,max_retries=3)
     except urllib.error.HTTPError as exc:
         body=exc.read().decode('utf-8','replace')
         raise RuntimeError(f"OpenRouter smoke HTTP {exc.code} for {args.label}: {body[:3000]}") from exc
