@@ -1,0 +1,9 @@
+{
+  "budget_gate_passed": false,
+  "live_usage_after_primary_usd": 7.09970498,
+  "predeclared_additional_allowance_usd": 0.8,
+  "predeclared_calls": 1300,
+  "predeclared_project_ceiling_usd": 6.75,
+  "protocol": "robustness-v1",
+  "status": "predeclared_but_unexecuted_budget_gate_failed"
+}
