@@ -28,6 +28,7 @@ jobs:
         run: |
           python scripts/verify_amendment3.py
           python scripts/verify_amendment4.py
+          python scripts/verify_amendment5.py
           python scripts/verify_robustness_freeze.py
       - name: Snapshot OpenRouter usage before repairs
         working-directory: phase2
@@ -82,8 +83,30 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+  repair-deepseek:
+    needs: gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify DeepSeek Amendment 5
+        working-directory: phase2
+        run: python scripts/verify_amendment5.py
+      - name: Run complete DeepSeek cell under Amendment 5
+        working-directory: phase2
+        run: python scripts/run_deepseek_repair.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: repair-deepseek_v32
+          path: phase2/results/raw/deepseek_v32.jsonl
+          if-no-files-found: error
+          retention-days: 30
+
   analyze:
-    needs: [repair-claude, repair-gptnano]
+    needs: [repair-claude, repair-gptnano, repair-deepseek]
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -96,16 +119,16 @@ jobs:
         run: |
           python scripts/verify_amendment3.py
           python scripts/verify_amendment4.py
-      - name: Download six unaffected Amendment 2 primary artifacts
+          python scripts/verify_amendment5.py
+      - name: Download five untouched Amendment 2 primary artifacts
         run: |
           mkdir -p phase2/results/raw
           gh run download 31397776217 -n primary-gpt54mini -D phase2/results/raw
           gh run download 31397776217 -n primary-gemini36flash -D phase2/results/raw
-          gh run download 31397776217 -n primary-deepseek_v32 -D phase2/results/raw
           gh run download 31397776217 -n primary-qwen37max -D phase2/results/raw
           gh run download 31397776217 -n primary-mistral_medium35 -D phase2/results/raw
           gh run download 31397776217 -n primary-llama4_maverick -D phase2/results/raw
-      - name: Download two repaired model artifacts
+      - name: Download three repaired model artifacts
         uses: actions/download-artifact@v4
         with:
           pattern: repair-*
