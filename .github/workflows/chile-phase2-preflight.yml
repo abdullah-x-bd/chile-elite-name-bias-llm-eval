@@ -1,0 +1,30 @@
+name: Chile Phase II Preflight
+
+on:
+  pull_request:
+    paths:
+      - 'phase2/execution/preflight_trigger.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify scientific freeze
+        working-directory: phase2
+        run: python scripts/verify_freeze.py
+      - name: Run offline tests
+        working-directory: phase2
+        run: python -m unittest discover -s tests -v
+      - name: Verify OpenRouter key, models, providers, and budget
+        working-directory: phase2
+        run: python scripts/preflight.py
