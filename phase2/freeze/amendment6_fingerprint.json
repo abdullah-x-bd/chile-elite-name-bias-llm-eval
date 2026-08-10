@@ -1,0 +1,36 @@
+{
+  "amendment": 6,
+  "amendment5_fingerprint_sha256": "b00b1298529e57bce01f313177a57715aa4c04c66368cd0a46aac06a4e2598af",
+  "scientific_response_values_inspected": false,
+  "affected_cell": "claude_sonnet5",
+  "scientific_prompt_changed": false,
+  "old_max_tokens": 80,
+  "new_max_tokens": 160,
+  "diagnostic_run_id": 31402114996,
+  "diagnostic_target_request_identity": "1246482029fa7def1fc213174504b8812f64ee659b2ad7f42b03a2c1b048ac15",
+  "diagnostic_80": {
+    "finish_reason": "length",
+    "native_finish_reason": "max_tokens",
+    "completion_tokens": 80,
+    "reasoning_tokens": 0,
+    "content_length_chars": 0,
+    "refusal_present": false
+  },
+  "diagnostic_160": {
+    "finish_reason": "stop",
+    "native_finish_reason": "end_turn",
+    "completion_tokens": 132,
+    "reasoning_tokens": 0,
+    "content_length_chars": 67,
+    "refusal_present": false
+  },
+  "expected_prompts": 1032,
+  "file_hash_algorithm": "git-blob-sha1",
+  "file_hashes": {
+    "docs/PROTOCOL_AMENDMENT_6.md": "3186cdc0bcbb4718c87ac3bf484ebf0d3014071e",
+    "src/chile_phase2/execution_amendment6.py": "d24fca0de81f71241eace1358e0145e93caf28a3",
+    "scripts/run_claude_amendment6.py": "f11b5733e9c5c00e73b84a0d1e23d149fec9ffbf"
+  },
+  "manifest_digest": "280bf06a20a2a3d346340a1d22d4496027c1cda574601121685fc0e37efdb2ff",
+  "amendment_fingerprint_sha256": "a378a4c123e4239d1d98b02741fe92446e8ea5d13813a79f650ff87588a7f412"
+}
