@@ -1,0 +1,41 @@
+{
+  "version": "robustness-v1",
+  "outcome_blind": true,
+  "primary_protocol_amendment": 3,
+  "primary_amendment3_fingerprint_sha256": "5df71914a146dc4b8ee23163031c4875b94c281d7d5143b5391e0704d3c5e9ec",
+  "selection_rule": "ascending sha256(robustness-v1|prompt_id) within bank",
+  "bank_targets": {
+    "association": 6,
+    "decision_main": 29,
+    "decision_rare": 2,
+    "decision_metadata": 7,
+    "decision_holistic": 8
+  },
+  "spanish_subset_count": 52,
+  "spanish_subset_digest_sha256": "9f8fbda97e7874042960fc15f36fd3ce47b3ddaf7871af019c645bce49d7eb76",
+  "english_subset_digest_sha256": "bf611019044129f3d84daa99e0412d851353ac632a538644c0df8c0955d69ac7",
+  "freeze_workflow_artifact_sha256": "30f93eb23f6341eb006491982922270be9cb7795f99481e907ae89212f959f16",
+  "planned_calls": {
+    "repeated_stability": 832,
+    "english_context_shift": 416,
+    "provider_sensitivity": 52,
+    "total": 1300
+  },
+  "second_provider": {
+    "model": "deepseek/deepseek-v3.2",
+    "canonical_slug": "deepseek/deepseek-v3.2-20251201",
+    "provider": "streamlake",
+    "observed_endpoint": "streamlake/fp8"
+  },
+  "budget_gate": {
+    "additional_allowance_usd": 0.80,
+    "project_ceiling_usd": 6.75
+  },
+  "file_hash_algorithm": "git-blob-sha1",
+  "file_hashes": {
+    "docs/ROBUSTNESS_PROTOCOL.md": "e697b890493c29c3d0248634773925da71196f3d",
+    "src/chile_phase2/robustness.py": "cc5b849f862f46465878c3710e3e1f4d5b592c63",
+    "scripts/build_robustness_freeze.py": "f0b05518c05946d7c9c44cc0e37dcdd9feb54ba8"
+  },
+  "robustness_fingerprint_sha256": "2709d483c8c85fc7f56539eb4e98373d2d0b3988f244e37bfe5eb55c76455062"
+}
