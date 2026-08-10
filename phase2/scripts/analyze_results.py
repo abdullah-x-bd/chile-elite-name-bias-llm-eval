@@ -69,11 +69,9 @@ def main():
     df.to_csv(out/'derived_all_responses.csv',index=False)
     valid=df[df['parse_status']=='ok'].copy()
 
-    # Cost ledger
     cost=(df.groupby(['model_label','requested_model','requested_provider'],dropna=False).agg(requests=('prompt_id','size'),cost_usd=('cost_usd','sum'),mean_latency_ms=('latency_ms','mean'),retries=('retry_count','sum')).reset_index())
     cost.to_csv(tables/'cost_ledger.csv',index=False)
 
-    # Association surname-model scores, forced instrument only.
     af=valid[(valid.bank=='association') & valid.instrument.str.endswith('_forced')].copy()
     surname_scores=(af.groupby(['model_label','surname','surname_group'],as_index=False).high_status_mass.mean().rename(columns={'high_status_mass':'association_score'}))
     surname_scores.to_csv(tables/'surname_model_association.csv',index=False)
@@ -87,7 +85,6 @@ def main():
             assoc_rows.append({'model_label':model,'contrast':name,'n_a':len(x),'n_b':len(y),'mean_a':x.mean(),'mean_b':y.mean(),'mean_diff':x.mean()-y.mean(),'ci_low':ci[0],'ci_high':ci[1],'t':t,'p':p})
     assoc=pd.DataFrame(assoc_rows); assoc.to_csv(tables/'primary_association.csv',index=False)
 
-    # Primary structured decision leakage.
     dm=valid[valid.bank=='decision_main'].copy()
     leak_rows=[]; model_pivots={}
     for model,g in dm.groupby('model_label'):
@@ -99,10 +96,9 @@ def main():
             thi=(res['mean_diff']-margin)/se; phi=stats.t.cdf(thi,len(res['diffs'])-1)
         else:
             plo=0.0 if res['mean_diff']>-margin else 1.0; phi=0.0 if res['mean_diff']<margin else 1.0
-        leak_rows.append({'model_label':model,'n':res['n'],'mean_diff':res['mean_diff'],'ci_low':res['ci_low'],'ci_high':res['ci_high'],'paired_t':res['t'],'p':res['p'],'blind_sd':sd,'standardized_effect':res['mean_diff']/sd if sd else np.nan,'equivalence_margin_points':margin,'tost_p_lower':plo,'tost_p_upper':phi,'equivalent_within_0.10sd':bool(plo<.05 and phi<.05)})
+        leak_rows.append({'model_label':model,'n':res['n'],'mean_diff':res['mean_diff'],'ci_low':res['ci_low'],'ci_high':res['ci_high'],'paired_t':res['t'],'p':res['p'],'blind_sd':sd,'standardized_effect':res['mean_diff']/sd if sd else np.nan,'equivalence_margin_points':margin,'tost_p_lower':plo,'tost_p_upper':phi,'equivalent_within_0_10_sd':bool(plo<.05 and phi<.05)})
     leakage=pd.DataFrame(leak_rows); leakage.to_csv(tables/'primary_decision_leakage.csv',index=False)
 
-    # Secondary contrasts and task domains.
     secondary=[]
     for model,g in valid[valid.bank.isin(['decision_main','decision_rare','decision_metadata','decision_holistic'])].groupby('model_label'):
         main=g[g.bank=='decision_main']
@@ -121,12 +117,10 @@ def main():
     for fam,idx in sec.groupby('family').groups.items(): sec.loc[idx,'p_fdr']=bh_adjust(sec.loc[idx,'p'].fillna(1).to_numpy())
     sec.to_csv(tables/'secondary_contrasts.csv',index=False)
 
-    # Abstention-permitted association behavior.
     aa=valid[(valid.bank=='association') & valid.instrument.str.endswith('_abstention')].copy()
     abst=(aa.groupby(['model_label','surname_group','domain']).agg(n=('prompt_id','size'),infer_rate=('can_infer',lambda x: float(pd.Series(x).fillna(False).mean())),mean_high_status_mass=('high_status_mass','mean')).reset_index())
     abst.to_csv(tables/'abstention_behavior.csv',index=False)
 
-    # Task competence.
     profiles=load_jsonl(ROOT/'data/frozen/base_profiles_v1.jsonl.gz.b64'); pmap={p['profile_id']:p for p in profiles}
     comp=[]
     blind_rows=dm[dm.condition=='blind'].copy(); blind_rows['normative_score']=blind_rows.base_profile_id.map(lambda x:pmap[x]['normative_score'])
@@ -135,7 +129,6 @@ def main():
         comp.append({'model_label':model,'n':len(g),'spearman_rho':rho,'p':p,'mae_vs_normative':float(np.mean(np.abs(g.score.astype(float)-g.normative_score.astype(float))))})
     competence=pd.DataFrame(comp); competence.to_csv(tables/'task_competence.csv',index=False)
 
-    # Coupling at model and surname-pair levels.
     aec=assoc[assoc.contrast=='elite_minus_common'][['model_label','mean_diff']].rename(columns={'mean_diff':'association_diff'})
     dl=leakage[['model_label','mean_diff']].rename(columns={'mean_diff':'leakage_diff'})
     mc=aec.merge(dl,on='model_label'); pr=stats.pearsonr(mc.association_diff,mc.leakage_diff); sr=stats.spearmanr(mc.association_diff,mc.leakage_diff)
@@ -156,7 +149,6 @@ def main():
     pair_coupling={'pearson_r':float(ppr.statistic),'pearson_p':float(ppr.pvalue),'spearman_rho':float(psr.statistic),'spearman_p':float(psr.pvalue),'n_cells':len(pairs)}
     (statsdir/'coupling.json').write_text(json.dumps({'model_level':model_coupling,'surname_pair_level':pair_coupling},indent=2),encoding='utf-8')
 
-    # Mixed effects model.
     mixed_status='not_run'
     try:
         import statsmodels.formula.api as smf
@@ -166,7 +158,6 @@ def main():
     except Exception as exc:
         (statsdir/'mixed_effects.txt').write_text('Mixed-effects fit failed transparently:\n'+repr(exc),encoding='utf-8'); mixed_status='failed'
 
-    # Figures.
     order=[m['label'] for m in model_cfg['models']]
     def forest(table,path,title,xlabel):
         t=table.set_index('model_label').reindex(order).dropna(subset=['mean_diff']); y=np.arange(len(t)); x=t.mean_diff.to_numpy(float); lo=x-t.ci_low.to_numpy(float); hi=t.ci_high.to_numpy(float)-x
@@ -180,13 +171,12 @@ def main():
     fig,ax=plt.subplots(figsize=(8,5)); groups=['elite_coded','common_frequency','rare_frequency']; data=[surname_scores[surname_scores.surname_group==g].association_score.to_numpy(float) for g in groups]; ax.boxplot(data,tick_labels=groups); ax.set_ylabel('High-status association score'); ax.set_title('Forced association distribution by surname group'); fig.tight_layout(); fig.savefig(figs/'07_association_group_distributions.png',dpi=180); plt.close(fig)
     cl=competence.merge(leakage[['model_label','mean_diff']].rename(columns={'mean_diff':'leakage_diff'}),on='model_label'); fig,ax=plt.subplots(figsize=(7,5)); ax.scatter(cl.spearman_rho,cl.leakage_diff); [ax.annotate(r.model_label,(r.spearman_rho,r.leakage_diff),fontsize=8) for r in cl.itertuples()]; ax.axhline(0,linewidth=1); ax.set_xlabel('Task competence: Spearman rho'); ax.set_ylabel('Decision leakage'); ax.set_title('Task competence versus leakage'); fig.tight_layout(); fig.savefig(figs/'08_competence_vs_leakage.png',dpi=180); plt.close(fig)
 
-    # Machine-readable summary and readable results.
     summary={'expected_rows':expected,'observed_rows':len(df),'semantic_invalid_rows':int((df.parse_status!='ok').sum()),'total_cost_usd':float(df.cost_usd.sum()),'mixed_effects_status':mixed_status,'model_level_coupling':model_coupling,'surname_pair_coupling':pair_coupling}
     (statsdir/'summary.json').write_text(json.dumps(summary,indent=2),encoding='utf-8')
     lines=['# Phase II results','',f"Primary confirmatory dataset: **{len(df):,} model responses** across {len(model_cfg['models'])} frozen model/provider endpoints.",f"Recorded OpenRouter cost: **${df.cost_usd.sum():.4f}**.",f"Semantically invalid primary rows: **{int((df.parse_status!='ok').sum())}**.",'','## Primary latent association','']
     for r in assoc[assoc.contrast=='elite_minus_common'].sort_values('model_label').itertuples(): lines.append(f"- `{r.model_label}`: elite-common **{r.mean_diff:+.2f}** points, 95% bootstrap CI [{r.ci_low:+.2f}, {r.ci_high:+.2f}], p={r.p:.3g}.")
     lines += ['','## Primary decision leakage','']
-    for r in leakage.sort_values('model_label').itertuples(): lines.append(f"- `{r.model_label}`: elite-common **{r.mean_diff:+.3f}** score points, 95% bootstrap CI [{r.ci_low:+.3f}, {r.ci_high:+.3f}], standardized {r.standardized_effect:+.3f}; equivalence within ±0.10 SD: **{'yes' if r.equivalent_within_0_10sd else 'no'}**.")
+    for r in leakage.sort_values('model_label').itertuples(): lines.append(f"- `{r.model_label}`: elite-common **{r.mean_diff:+.3f}** score points, 95% bootstrap CI [{r.ci_low:+.3f}, {r.ci_high:+.3f}], standardized {r.standardized_effect:+.3f}; equivalence within ±0.10 SD: **{'yes' if r.equivalent_within_0_10_sd else 'no'}**.")
     lines += ['','## Association-leakage coupling','',f"Across models: Pearson r={model_coupling['pearson_r']:+.3f} (p={model_coupling['pearson_p']:.3g}); Spearman rho={model_coupling['spearman_rho']:+.3f} (p={model_coupling['spearman_p']:.3g}).",f"Across frozen surname-pair × model cells: Pearson r={pair_coupling['pearson_r']:+.3f} (p={pair_coupling['pearson_p']:.3g}); Spearman rho={pair_coupling['spearman_rho']:+.3f} (p={pair_coupling['spearman_p']:.3g}).",'','## Claim boundary','', 'Phase II distinguishes measured surname-status association from consequential decision leakage. A strong association result is not itself evidence of discriminatory decision behavior. Null or equivalent decision effects apply only to the frozen tasks, models, providers, language, and evaluation conditions in this release.','']
     (out/'RESULTS.md').write_text('\n'.join(lines),encoding='utf-8')
     print(json.dumps(summary,indent=2))
