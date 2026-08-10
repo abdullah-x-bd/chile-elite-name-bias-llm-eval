@@ -1,0 +1,16 @@
+name: Chile Phase II Final Primary Recombination (archived)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archived:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "Phase II primary collection is complete and frozen."
+          echo "Historical execution workflow disabled after verified 8,256-row release."
+          echo "See phase2/results/PRIMARY_VERIFICATION.json and phase2/docs/PROTOCOL_AMENDMENT_*.md."

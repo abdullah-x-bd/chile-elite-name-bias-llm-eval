@@ -1,0 +1,16 @@
+name: Chile Phase II Finalization (archived)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archived:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "Phase II finalization is complete and frozen."
+          echo "Automatic Amendment 9 inference has been disabled."
+          echo "Verified release: 8,256 rows; see phase2/results/PRIMARY_VERIFICATION.json."

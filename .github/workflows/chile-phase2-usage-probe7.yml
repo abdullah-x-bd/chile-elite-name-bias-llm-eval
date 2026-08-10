@@ -1,0 +1,15 @@
+name: Chile Phase II Usage Probe (archived)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archived:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "Historical OpenRouter usage probe disabled after Phase II completion."
+          echo "Final budget disposition is recorded under phase2/results/."

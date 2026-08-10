@@ -1,0 +1,9 @@
+model_label,requested_model,requested_provider,requests,cost_usd,mean_latency_ms,retries
+claude_sonnet5,anthropic/claude-sonnet-5,anthropic,1032,1.378284,2989.5972577519383,0
+deepseek_v32,deepseek/deepseek-v3.2,deepinfra,1032,0.04778162,3411.3317054263566,0
+gemini36flash,google/gemini-3.6-flash,google-ai-studio,1032,0.379089,866.542742248062,1
+gpt54mini,openai/gpt-5.4-mini,openai,1032,0.27447525,1878.3359011627906,0
+gpt54nano,openai/gpt-5.4-nano,openai,1032,0.0707847,1706.1532558139534,0
+llama4_maverick,meta-llama/llama-4-maverick,deepinfra,1032,0.0601702,799.4259399224806,0
+mistral_medium35,mistralai/mistral-medium-3-5,mistral,1032,0.4544775,972.2803682170543,1
+qwen37max,qwen/qwen3.7-max,alibaba,1032,0.4155901,1726.3018217054264,0

@@ -1,0 +1,66 @@
+{
+  "release": "phase2-primary-v1.0",
+  "format": "base64(gzip(csv))",
+  "columns": ["prompt_id", "parsed_response"],
+  "rows_per_model": 1032,
+  "total_rows": 8256,
+  "note": "These are the accepted scientific outputs only. Full transport-level OpenRouter records are preserved by the verified Actions artifact and release provenance; prompt metadata are reconstructed from the frozen manifest by prompt_id.",
+  "models": {
+    "claude_sonnet5": {
+      "file": "claude_sonnet5.jsonl.gz.b64",
+      "internal_format": "csv",
+      "csv_sha256": "5a435d05765733b16d6ce26cf56c85080f5335189002bf1a8c55d846b4f43c40",
+      "gzip_sha256": "5ccda6186654c769198d5de56a3651baffa62206fee806d279569dc84f1fb5d7",
+      "rows": 1032
+    },
+    "deepseek_v32": {
+      "file": "deepseek_v32.csv.gz.b64",
+      "internal_format": "csv",
+      "csv_sha256": "017d1b9a90a5a5a74f0150771321bc4b0ae3093353c38a7d93b158e95bb671f2",
+      "gzip_sha256": "f33e8948890d668301d626585107dd1654d741c42aa292bdc1733686454e0a8a",
+      "rows": 1032
+    },
+    "gemini36flash": {
+      "file": "gemini36flash.csv.gz.b64",
+      "internal_format": "csv",
+      "csv_sha256": "21a39dfae3314da5ac731408e786adca267eadeeadfdec357fded5f607a96290",
+      "gzip_sha256": "2a1c29a5e5e99c1f8f6ecded520060bcb9d69850f531533cb7363362232fc27f",
+      "rows": 1032
+    },
+    "gpt54mini": {
+      "file": "gpt54mini.csv.gz.b64",
+      "internal_format": "csv",
+      "csv_sha256": "2da3d1db3b7562713f44077ddf1848e0f27fe63414324ed8f8de98b8403158ff",
+      "gzip_sha256": "4c3000b49f998747e1dd63857add602a5ead651416d9a47402d5e0e45a41343d",
+      "rows": 1032
+    },
+    "gpt54nano": {
+      "file": "gpt54nano.csv.gz.b64",
+      "internal_format": "csv",
+      "csv_sha256": "94f8523dd60f977656e4c6ac94502ff9282bf92b3e720e0cd342a3c61f4703da",
+      "gzip_sha256": "4e411ca3ec94d7c77757e4c1378ea181f2cb879d5a7004c0f794eb5981a6b470",
+      "rows": 1032
+    },
+    "llama4_maverick": {
+      "file": "llama4_maverick.csv.gz.b64",
+      "internal_format": "csv",
+      "csv_sha256": "5076f910a630dc27032cfc75a0ce5972009e338a6e5e3f93506a1ee0b6483092",
+      "gzip_sha256": "9a99f9accffa571a34be2c3bfe5dc8d9b8c2f66fc7f582b51fb224af17769c84",
+      "rows": 1032
+    },
+    "mistral_medium35": {
+      "file": "mistral_medium35.csv.gz.b64",
+      "internal_format": "csv",
+      "csv_sha256": "935526ae6f32c3dbe0daa01f4037e32882b15e3cb3c55e88acf4d676f510c3a4",
+      "gzip_sha256": "3f288dc19d5bae73f11d82810af8af3b5574f513395bf9ecb359dced0f23f2ec",
+      "rows": 1032
+    },
+    "qwen37max": {
+      "file": "qwen37max.csv.gz.b64",
+      "internal_format": "csv",
+      "csv_sha256": "4b5628fa0b4fa59e149d190417b5f91f337fe95078182f2e67842a417baa6683",
+      "gzip_sha256": "160fc6a9cc81f1d3fac6af4c5f8da03cbb44c817718489a978b1b032c604ab7a",
+      "rows": 1032
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "expected_rows": 8256,
+  "observed_rows": 8256,
+  "semantic_invalid_rows": 0,
+  "total_cost_usd": 3.08065237,
+  "mixed_effects_status": "success",
+  "model_level_coupling": {
+    "pearson_r": 0.20119716783547373,
+    "pearson_p": 0.6328123277786982,
+    "spearman_rho": 0.07142857142857144,
+    "spearman_p": 0.8665262706759088,
+    "n_models": 8
+  },
+  "surname_pair_coupling": {
+    "pearson_r": 0.06527267308283924,
+    "pearson_p": 0.5651275671136802,
+    "spearman_rho": -0.07739954516612166,
+    "spearman_p": 0.4949785841113564,
+    "n_cells": 80
+  }
+}
