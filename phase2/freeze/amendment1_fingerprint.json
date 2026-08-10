@@ -1,0 +1,28 @@
+{
+  "amendment": 1,
+  "base_protocol_fingerprint_sha256": "46a83c263749b01e430e85a04241c800e2303d35093c146f55498b41aa1f02f0",
+  "expected_models": 8,
+  "expected_prompts_per_model": 1032,
+  "expected_primary_calls": 8256,
+  "scientific_calls_started": false,
+  "amended_file_hash_algorithm": "git-blob-sha1",
+  "file_hashes": {
+    "config/models.json": "29c37a115669fd0b2a7216d95c8e4886d8399930",
+    "config/study.json": "8c75cdb41d57bfa25a40a95798b12f14b241439d",
+    "data/frozen/base_profiles_v1.jsonl.gz.b64": "c53b9a2d9662a3f3fe00713ab352d376ee2d984e",
+    "data/frozen/given_names_v1.csv": "57daf84112f6483f69dd0ef276ad63e30644a350",
+    "data/frozen/surnames_v1.csv": "e8b28e66903bef62db6a6c3075620cb318769ed8",
+    "docs/ANALYSIS_PLAN.md": "bcfdfee7130c6492a74fb1a4546573fdeb8765f9",
+    "docs/PHASE2_PROTOCOL.md": "cab91659deb587e43761746f77f5c34cba08c9b7",
+    "docs/PROTOCOL_AMENDMENT_1.md": "d3c4b9b5c54bf4a1dc8c79be5e09ab4e88566962",
+    "docs/OPERATIONAL_ANALYSIS_SPEC.md": "95d8d2c9e9d8dbec0552ed90b0aa9e95e81dec0a",
+    "freeze/manifest_digest.json": "b695737ca3759b4a571dbe77623b16cc283a8ef6",
+    "src/chile_phase2/core.py": "2856cca9c7f1a14964ad4a8a16d40940cc88533b",
+    "src/chile_phase2/openrouter.py": "0d913a3ab07712fdcdc77ef9d8d633c40d401f01",
+    "src/chile_phase2/execution_amendment1.py": "2e8dbbeac979d99401b06852a92a078b89a2ebb0",
+    "scripts/analyze_results.py": "cd1e2827d5b514b861ae452f375c87cc1fab2506"
+  },
+  "manifest_digest": "280bf06a20a2a3d346340a1d22d4496027c1cda574601121685fc0e37efdb2ff",
+  "note": "Amendment 1 was frozen after non-study technical smoke failures and before any Phase II scientific prompt was executed.",
+  "amendment_fingerprint_sha256": "ed1fb8f0c0b77240bd9cbda65c26619d91afe0f184009314c3b0b361714a001e"
+}
