@@ -9,6 +9,16 @@ on:
       - 'phase2/paper/**'
       - 'phase2/scripts/restore_raw_release.py'
       - '.github/workflows/chile-phase2-release-check.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'phase2/results/raw_release/**'
+      - 'phase2/results/PRIMARY_VERIFICATION.json'
+      - 'phase2/results/RESULTS.md'
+      - 'phase2/paper/**'
+      - 'phase2/scripts/restore_raw_release.py'
+      - '.github/workflows/chile-phase2-release-check.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
