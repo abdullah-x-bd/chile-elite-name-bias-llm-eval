@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         label: [gpt54mini, gpt54nano, claude_sonnet5, gemini36flash, deepseek_v4_flash, qwen37max, mistral_medium35, llama4_maverick]
     env:
@@ -30,6 +30,10 @@ jobs:
       - name: Verify frozen inputs
         working-directory: phase2
         run: python scripts/verify_freeze.py
+      - name: Inspect active DeepSeek V3.2 endpoints
+        if: matrix.label == 'deepseek_v4_flash'
+        working-directory: phase2
+        run: python scripts/list_deepseek_v32_endpoints.py
       - name: Exact-routing non-study smoke request
         working-directory: phase2
         run: python scripts/smoke_model.py --label '${{ matrix.label }}'
