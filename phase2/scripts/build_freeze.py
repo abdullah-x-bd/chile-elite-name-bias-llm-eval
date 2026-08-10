@@ -13,7 +13,7 @@ def main():
     profiles=generate_profiles(study['seed'],study['profiles_per_domain'])
     write_jsonl(ROOT/'data/frozen/base_profiles_v1.jsonl',profiles)
     manifest=generate_manifest(ROOT,profiles)
-    write_jsonl(ROOT/'data/frozen/prompt_manifest_v1.jsonl',compact_manifest(manifest))
+    write_jsonl(ROOT/'data/frozen/prompt_manifest_v1.jsonl.gz.b64',compact_manifest(manifest))
     validate_manifest(manifest,profiles)
     if args.verify:
         assert len(profiles)==192 and len(manifest)==study['expected_prompts_per_model']
