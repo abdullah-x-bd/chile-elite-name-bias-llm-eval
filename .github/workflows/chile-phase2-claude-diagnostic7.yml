@@ -1,0 +1,25 @@
+name: Chile Phase II Claude Diagnostic 7
+
+on:
+  pull_request:
+    paths:
+      - 'phase2/execution/claude_diag7_trigger.txt'
+
+permissions:
+  contents: read
+
+env:
+  OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+  PYTHONUNBUFFERED: '1'
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Run outcome-blind JSON validity diagnostic
+        working-directory: phase2
+        run: python scripts/diagnose_claude_json_budget.py
