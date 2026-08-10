@@ -1,0 +1,17 @@
+{
+  "amendment": 5,
+  "amendment4_fingerprint_sha256": "afda642c2167c63bd56b6087884181842bdc00bb924d2a1b5d8b65773c86eb01",
+  "scientific_response_values_inspected": false,
+  "affected_cell": "deepseek_v32",
+  "scientific_settings_changed": false,
+  "execution_change": "retry identical request on syntactically invalid JSON",
+  "discarded_unrecovered_cost_approx_usd": 0.0230,
+  "expected_prompts": 1032,
+  "file_hash_algorithm": "git-blob-sha1",
+  "file_hashes": {
+    "docs/PROTOCOL_AMENDMENT_5.md": "2a84628c82bd1134a63c744c73db48dcb879ff96",
+    "scripts/run_deepseek_repair.py": "7fea2e8634325ff4c2126b720971a81bde1ce6d2"
+  },
+  "manifest_digest": "280bf06a20a2a3d346340a1d22d4496027c1cda574601121685fc0e37efdb2ff",
+  "amendment_fingerprint_sha256": "b00b1298529e57bce01f313177a57715aa4c04c66368cd0a46aac06a4e2598af"
+}
