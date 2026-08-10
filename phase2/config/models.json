@@ -1,5 +1,6 @@
 {
   "frozen_at": "2026-08-10",
+  "protocol_amendment": 1,
   "models": [
     {
       "label": "gpt54mini",
@@ -46,12 +47,12 @@
       "reasoning": "minimal"
     },
     {
-      "label": "deepseek_v4_flash",
-      "request_id": "deepseek/deepseek-v4-flash-0731",
-      "canonical_slug": "deepseek/deepseek-v4-flash-20260731",
-      "provider": "deepseek",
-      "prompt_price_per_token": 1.4e-07,
-      "completion_price_per_token": 2.8e-07,
+      "label": "deepseek_v32",
+      "request_id": "deepseek/deepseek-v3.2",
+      "canonical_slug": "deepseek/deepseek-v3.2-20251201",
+      "provider": "deepinfra",
+      "prompt_price_per_token": 2.6e-07,
+      "completion_price_per_token": 3.8e-07,
       "supports_temperature": true,
       "supports_seed": true,
       "reasoning": "low"
