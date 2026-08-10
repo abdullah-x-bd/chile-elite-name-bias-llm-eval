@@ -1,0 +1,105 @@
+name: Chile Phase II Primary Confirmatory Run
+
+on:
+  pull_request:
+    paths:
+      - 'phase2/execution/primary_trigger.txt'
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUNBUFFERED: '1'
+
+jobs:
+  smoke:
+    name: smoke-${{ matrix.label }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: true
+      matrix:
+        label: [gpt54mini, gpt54nano, claude_sonnet5, gemini36flash, deepseek_v4_flash, qwen37max, mistral_medium35, llama4_maverick]
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify frozen inputs
+        working-directory: phase2
+        run: python scripts/verify_freeze.py
+      - name: Exact-routing non-study smoke request
+        working-directory: phase2
+        run: python scripts/smoke_model.py --label '${{ matrix.label }}'
+
+  primary:
+    name: primary-${{ matrix.label }}
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {label: gpt54mini, cap: '0.45'}
+          - {label: gpt54nano, cap: '0.07'}
+          - {label: claude_sonnet5, cap: '2.10'}
+          - {label: gemini36flash, cap: '1.60'}
+          - {label: deepseek_v4_flash, cap: '0.10'}
+          - {label: qwen37max, cap: '0.55'}
+          - {label: mistral_medium35, cap: '0.72'}
+          - {label: llama4_maverick, cap: '0.08'}
+    env:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify frozen inputs
+        working-directory: phase2
+        run: python scripts/verify_freeze.py
+      - name: Run one frozen model panel cell
+        working-directory: phase2
+        run: python scripts/run_one_model.py --label '${{ matrix.label }}' --cap-usd '${{ matrix.cap }}'
+      - name: Upload raw model results
+        uses: actions/upload-artifact@v4
+        with:
+          name: primary-${{ matrix.label }}
+          path: phase2/results/raw/${{ matrix.label }}.jsonl
+          if-no-files-found: error
+          retention-days: 30
+
+  analyze:
+    name: verify-and-analyze
+    needs: primary
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download all raw results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: primary-*
+          path: phase2/results/raw
+          merge-multiple: true
+      - name: Install analysis dependencies
+        run: python -m pip install --disable-pip-version-check numpy pandas scipy matplotlib statsmodels
+      - name: Verify complete primary release
+        working-directory: phase2
+        run: python scripts/verify_primary.py
+      - name: Run frozen analysis plan
+        working-directory: phase2
+        run: python scripts/analyze_results.py
+      - name: Upload complete primary research artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chile-phase2-primary-complete
+          path: phase2/results
+          if-no-files-found: error
+          retention-days: 30
