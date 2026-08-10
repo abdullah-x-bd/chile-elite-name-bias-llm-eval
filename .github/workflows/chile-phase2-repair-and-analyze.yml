@@ -1,0 +1,156 @@
+name: Chile Phase II Targeted Repair and Primary Analysis
+
+on:
+  pull_request:
+    paths:
+      - 'phase2/execution/repair_trigger.txt'
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHONUNBUFFERED: '1'
+  GH_TOKEN: ${{ github.token }}
+  OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify all outcome-blind repair freezes
+        working-directory: phase2
+        run: |
+          python scripts/verify_amendment3.py
+          python scripts/verify_amendment4.py
+          python scripts/verify_amendment5.py
+          python scripts/verify_robustness_freeze.py
+      - name: Snapshot OpenRouter usage before repairs
+        working-directory: phase2
+        run: python scripts/capture_openrouter_usage.py --label before_primary_repairs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: repair-usage-before
+          path: phase2/results/openrouter_usage_before_primary_repairs.json
+          retention-days: 30
+
+  repair-claude:
+    needs: gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify Claude Amendment 3 routing
+        working-directory: phase2
+        run: python scripts/smoke_claude_amendment3.py
+      - name: Run complete Claude cell under Amendment 3
+        working-directory: phase2
+        run: python scripts/run_claude_repair.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: repair-claude_sonnet5
+          path: phase2/results/raw/claude_sonnet5.jsonl
+          if-no-files-found: error
+          retention-days: 30
+
+  repair-gptnano:
+    needs: gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify GPT Nano Amendment 4
+        working-directory: phase2
+        run: python scripts/verify_amendment4.py
+      - name: Run complete GPT Nano cell under Amendment 4
+        working-directory: phase2
+        run: python scripts/run_gptnano_repair.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: repair-gpt54nano
+          path: phase2/results/raw/gpt54nano.jsonl
+          if-no-files-found: error
+          retention-days: 30
+
+  repair-deepseek:
+    needs: gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify DeepSeek Amendment 5
+        working-directory: phase2
+        run: python scripts/verify_amendment5.py
+      - name: Run complete DeepSeek cell under Amendment 5
+        working-directory: phase2
+        run: python scripts/run_deepseek_repair.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: repair-deepseek_v32
+          path: phase2/results/raw/deepseek_v32.jsonl
+          if-no-files-found: error
+          retention-days: 30
+
+  analyze:
+    needs: [repair-claude, repair-gptnano, repair-deepseek]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify repair freezes
+        working-directory: phase2
+        run: |
+          python scripts/verify_amendment3.py
+          python scripts/verify_amendment4.py
+          python scripts/verify_amendment5.py
+      - name: Download five untouched Amendment 2 primary artifacts
+        run: |
+          mkdir -p phase2/results/raw
+          gh run download 31397776217 -n primary-gpt54mini -D phase2/results/raw
+          gh run download 31397776217 -n primary-gemini36flash -D phase2/results/raw
+          gh run download 31397776217 -n primary-qwen37max -D phase2/results/raw
+          gh run download 31397776217 -n primary-mistral_medium35 -D phase2/results/raw
+          gh run download 31397776217 -n primary-llama4_maverick -D phase2/results/raw
+      - name: Download three repaired model artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: repair-*
+          path: phase2/results/raw
+          merge-multiple: true
+      - name: Remove non-model repair snapshot from raw directory if present
+        run: rm -f phase2/results/raw/openrouter_usage_before_primary_repairs.json
+      - name: Snapshot OpenRouter usage after primary repairs
+        working-directory: phase2
+        run: python scripts/capture_openrouter_usage.py --label after_primary_repairs
+      - name: Install analysis dependencies
+        run: python -m pip install --disable-pip-version-check numpy pandas scipy matplotlib statsmodels
+      - name: Verify combined 8,256-row primary release
+        working-directory: phase2
+        run: python scripts/verify_primary.py
+      - name: Run frozen primary analysis
+        working-directory: phase2
+        run: python scripts/analyze_results.py
+      - name: Upload repaired complete primary research artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chile-phase2-primary-complete-repaired
+          path: phase2/results
+          if-no-files-found: error
+          retention-days: 30

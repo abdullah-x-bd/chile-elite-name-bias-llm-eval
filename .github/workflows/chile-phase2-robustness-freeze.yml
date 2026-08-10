@@ -1,0 +1,45 @@
+name: Chile Phase II Robustness Freeze
+
+on:
+  pull_request:
+    paths:
+      - 'phase2/execution/robustness_freeze_trigger.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify Amendment 3 freeze
+        working-directory: phase2
+        run: python scripts/verify_amendment3.py
+      - name: Build deterministic robustness manifest
+        working-directory: phase2
+        run: python scripts/build_robustness_freeze.py
+      - name: Verify exact robustness counts
+        working-directory: phase2
+        run: |
+          python - <<'PY'
+          import json
+          x=json.load(open('freeze/robustness_manifest.json'))
+          assert x['spanish_subset_count']==52
+          assert x['planned_calls']['total']==1300
+          assert x['bank_targets']=={'association':6,'decision_main':29,'decision_rare':2,'decision_metadata':7,'decision_holistic':8}
+          assert len(x['spanish_cells'])==52 and len(x['english_cells'])==52
+          assert len({r['prompt_id'] for r in x['spanish_cells']})==52
+          assert len({r['prompt_id'] for r in x['english_cells']})==52
+          print('ROBUSTNESS FREEZE BUILD: PASS')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chile-phase2-robustness-freeze
+          path: phase2/freeze/robustness_manifest.json
+          if-no-files-found: error
+          retention-days: 30
