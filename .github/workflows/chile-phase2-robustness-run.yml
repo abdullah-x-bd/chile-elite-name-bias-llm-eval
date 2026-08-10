@@ -1,0 +1,126 @@
+name: Chile Phase II Robustness Run
+
+on:
+  pull_request:
+    paths:
+      - 'phase2/execution/robustness_run_trigger.txt'
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHONUNBUFFERED: '1'
+  GH_TOKEN: ${{ github.token }}
+  OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify robustness freeze
+        working-directory: phase2
+        run: python scripts/verify_robustness_freeze.py
+      - name: Enforce live project budget gate
+        working-directory: phase2
+        run: python scripts/robustness_budget_gate.py
+
+  model-robustness:
+    needs: gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {label: gpt54mini, cap: '0.08'}
+          - {label: gpt54nano, cap: '0.02'}
+          - {label: claude_sonnet5, cap: '0.20'}
+          - {label: gemini36flash, cap: '0.08'}
+          - {label: deepseek_v32, cap: '0.02'}
+          - {label: qwen37max, cap: '0.08'}
+          - {label: mistral_medium35, cap: '0.10'}
+          - {label: llama4_maverick, cap: '0.02'}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify robustness freeze
+        working-directory: phase2
+        run: python scripts/verify_robustness_freeze.py
+      - name: Run frozen stability and English subsets
+        working-directory: phase2
+        run: python scripts/run_robustness_model.py --label '${{ matrix.label }}' --cap-usd '${{ matrix.cap }}'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: robustness-${{ matrix.label }}
+          path: phase2/results/robustness/raw/${{ matrix.label }}.jsonl
+          if-no-files-found: error
+          retention-days: 30
+
+  provider-sensitivity:
+    needs: gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify robustness freeze
+        working-directory: phase2
+        run: python scripts/verify_robustness_freeze.py
+      - name: Run frozen DeepSeek StreamLake sensitivity
+        working-directory: phase2
+        run: python scripts/run_provider_sensitivity.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: robustness-deepseek-provider
+          path: phase2/results/robustness/raw/deepseek_v32_streamlake.jsonl
+          if-no-files-found: error
+          retention-days: 30
+
+  analyze:
+    needs: [model-robustness, provider-sensitivity]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Read repaired primary run id
+        id: primary
+        run: echo "run_id=$(cat phase2/execution/primary_repaired_run_id.txt)" >> "$GITHUB_OUTPUT"
+      - name: Download repaired primary artifact
+        run: |
+          mkdir -p phase2/results
+          gh run download '${{ steps.primary.outputs.run_id }}' -n chile-phase2-primary-complete-repaired -D phase2/results
+      - name: Download all robustness artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: robustness-*
+          path: phase2/results/robustness/raw
+          merge-multiple: true
+      - name: Install analysis dependencies
+        run: python -m pip install --disable-pip-version-check numpy pandas scipy
+      - name: Analyze frozen robustness layer
+        working-directory: phase2
+        run: python scripts/analyze_robustness.py
+      - name: Snapshot OpenRouter usage after robustness
+        working-directory: phase2
+        run: python scripts/capture_openrouter_usage.py --label after_robustness
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chile-phase2-robustness-complete
+          path: |
+            phase2/results/robustness
+            phase2/results/openrouter_usage_after_robustness.json
+          if-no-files-found: error
+          retention-days: 30
