@@ -15,7 +15,7 @@ def main():
         if got!=expected: failures.append(f'hash mismatch {rel}: {got} != {expected}')
     if failures:
         print('\n'.join(failures)); raise SystemExit('FAIL: freeze integrity')
-    manifest=sum(1 for x in (ROOT/'data/frozen/prompt_manifest_v1.jsonl').read_text(encoding='utf-8').splitlines() if x.strip())
+    manifest=sum(1 for x in __import__('gzip').decompress(__import__('base64').b64decode((ROOT/'data/frozen/prompt_manifest_v1.jsonl.gz.b64').read_text(encoding='ascii'))).decode('utf-8').splitlines() if x.strip())
     profiles=sum(1 for x in (ROOT/'data/frozen/base_profiles_v1.jsonl').read_text(encoding='utf-8').splitlines() if x.strip())
     if manifest!=1032 or profiles!=192: raise SystemExit('FAIL: frozen counts')
     print('PHASE II FREEZE VERIFICATION: PASS')
