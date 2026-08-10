@@ -1,0 +1,31 @@
+name: Chile Phase II Usage Probe 7
+
+on:
+  pull_request:
+    paths:
+      - 'phase2/execution/usage_probe7.txt'
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUNBUFFERED: '1'
+  OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
+jobs:
+  usage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Capture exact current OpenRouter usage
+        working-directory: phase2
+        run: python scripts/capture_openrouter_usage.py --label before_amendment7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: amendment7-usage-before
+          path: phase2/results/openrouter_usage_before_amendment7.json
+          retention-days: 30
