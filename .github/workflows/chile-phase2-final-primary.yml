@@ -1,0 +1,107 @@
+name: Chile Phase II Final Primary Recombination
+
+on:
+  pull_request:
+    paths:
+      - 'phase2/execution/final_primary_trigger.txt'
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHONUNBUFFERED: '1'
+  GH_TOKEN: ${{ github.token }}
+  OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
+jobs:
+  claude6:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify Claude Amendment 6
+        working-directory: phase2
+        run: python scripts/verify_amendment6.py
+      - name: Snapshot and gate live budget before final Claude cell
+        working-directory: phase2
+        run: |
+          python scripts/capture_openrouter_usage.py --label before_claude_amendment6
+          python - <<'PY'
+          import json
+          x=json.load(open('results/openrouter_usage_before_claude_amendment6.json'))
+          usage=float(x['usage_usd'])
+          if usage+2.70>6.75:
+              raise SystemExit(f'CLAUDE 6 BUDGET GATE: STOP ${usage:.4f}+$2.70>$6.75')
+          print(f'CLAUDE 6 BUDGET GATE: PASS usage=${usage:.4f}')
+          PY
+      - name: Run complete Claude cell under Amendment 6
+        working-directory: phase2
+        run: python scripts/run_claude_amendment6.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: final-claude_sonnet5
+          path: |
+            phase2/results/raw/claude_sonnet5.jsonl
+            phase2/results/openrouter_usage_before_claude_amendment6.json
+          if-no-files-found: error
+          retention-days: 30
+
+  analyze:
+    needs: claude6
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify execution freezes
+        working-directory: phase2
+        run: |
+          python scripts/verify_amendment4.py
+          python scripts/verify_amendment5.py
+          python scripts/verify_amendment6.py
+      - name: Recover five untouched original model artifacts
+        run: |
+          mkdir -p phase2/results/raw
+          gh run download 31397776217 -n primary-gpt54mini -D phase2/results/raw
+          gh run download 31397776217 -n primary-gemini36flash -D phase2/results/raw
+          gh run download 31397776217 -n primary-qwen37max -D phase2/results/raw
+          gh run download 31397776217 -n primary-mistral_medium35 -D phase2/results/raw
+          gh run download 31397776217 -n primary-llama4_maverick -D phase2/results/raw
+      - name: Recover GPT Nano and DeepSeek repaired artifacts
+        run: |
+          gh run download 31401184257 -n repair-gpt54nano -D phase2/results/raw
+          gh run download 31401184257 -n repair-deepseek_v32 -D phase2/results/raw
+      - name: Download final Claude artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: final-claude_sonnet5
+          path: phase2/results/final-claude
+      - name: Install Claude raw ledger and retain budget snapshot
+        run: |
+          cp phase2/results/final-claude/claude_sonnet5.jsonl phase2/results/raw/claude_sonnet5.jsonl
+          cp phase2/results/final-claude/openrouter_usage_before_claude_amendment6.json phase2/results/
+          ls -lh phase2/results/raw
+      - name: Snapshot OpenRouter usage after final primary collection
+        working-directory: phase2
+        run: python scripts/capture_openrouter_usage.py --label after_final_primary
+      - name: Install analysis dependencies
+        run: python -m pip install --disable-pip-version-check numpy pandas scipy matplotlib statsmodels
+      - name: Verify exact 8,256-row primary release
+        working-directory: phase2
+        run: python scripts/verify_primary.py
+      - name: Run frozen primary analysis
+        working-directory: phase2
+        run: python scripts/analyze_results.py
+      - name: Upload final verified primary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chile-phase2-final-primary
+          path: phase2/results
+          if-no-files-found: error
+          retention-days: 30
