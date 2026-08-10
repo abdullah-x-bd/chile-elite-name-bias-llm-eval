@@ -1,150 +1,16 @@
-name: Chile Phase II Final Primary Recombination
+name: Chile Phase II Final Primary Recombination (archived)
 
 on:
-  pull_request:
-    paths:
-      - 'phase2/execution/final_primary_trigger.txt'
+  workflow_dispatch:
 
 permissions:
   contents: read
-  actions: read
-
-env:
-  PYTHONUNBUFFERED: '1'
-  GH_TOKEN: ${{ github.token }}
-  OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
 jobs:
-  budget-gate:
+  archived:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: {python-version: '3.12'}
-      - name: Verify frozen repair chain
-        working-directory: phase2
-        run: |
-          python scripts/verify_amendment4.py
-          python scripts/verify_amendment5.py
-          python scripts/verify_amendment6.py
-          python scripts/verify_amendment7.py
-          python scripts/verify_amendment8.py
-      - name: Snapshot and gate live budget against account balance
-        working-directory: phase2
-        run: |
-          python scripts/capture_openrouter_usage.py --label before_amendment8_missing_shards
-          python - <<'PY'
-          import json
-          x=json.load(open('results/openrouter_usage_before_amendment8_missing_shards.json'))
-          usage=float(x['usage_usd'])
-          worst_case_increment=0.50
-          account_safety_ceiling=7.20
-          if usage+worst_case_increment>account_safety_ceiling:
-              raise SystemExit(f'AMENDMENT 8 BUDGET GATE: STOP ${usage:.4f}+${worst_case_increment:.2f}>${account_safety_ceiling:.2f}')
-          print(f'AMENDMENT 8 BUDGET GATE: PASS usage=${usage:.4f}, worst-case added=${worst_case_increment:.2f}, account safety ceiling=${account_safety_ceiling:.2f}')
-          PY
-      - uses: actions/upload-artifact@v4
-        with:
-          name: amendment8-budget-before
-          path: phase2/results/openrouter_usage_before_amendment8_missing_shards.json
-          retention-days: 30
-
-  claude8:
-    needs: budget-gate
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1,7]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: {python-version: '3.12'}
-      - name: Verify Claude Amendment 8
-        working-directory: phase2
-        run: python scripts/verify_amendment8.py
-      - name: Run missing Claude Amendment 8 shard
-        working-directory: phase2
-        run: python scripts/run_claude_amendment8_shard.py --shard-index '${{ matrix.shard }}' --shard-count 8 --cap-usd 0.25
-      - uses: actions/upload-artifact@v4
-        with:
-          name: final-claude8-shard-${{ matrix.shard }}
-          path: phase2/results/raw/claude_sonnet5_a8_shard*.jsonl
-          if-no-files-found: error
-          retention-days: 30
-
-  analyze:
-    needs: claude8
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: {python-version: '3.12'}
-      - name: Verify execution freezes
-        working-directory: phase2
-        run: |
-          python scripts/verify_amendment4.py
-          python scripts/verify_amendment5.py
-          python scripts/verify_amendment6.py
-          python scripts/verify_amendment7.py
-          python scripts/verify_amendment8.py
-      - name: Recover five untouched original model artifacts
-        run: |
-          mkdir -p phase2/results/raw
-          gh run download 31397776217 -n primary-gpt54mini -D phase2/results/raw
-          gh run download 31397776217 -n primary-gemini36flash -D phase2/results/raw
-          gh run download 31397776217 -n primary-qwen37max -D phase2/results/raw
-          gh run download 31397776217 -n primary-mistral_medium35 -D phase2/results/raw
-          gh run download 31397776217 -n primary-llama4_maverick -D phase2/results/raw
-      - name: Recover completed Nano and DeepSeek repair shards
-        run: |
-          mkdir -p phase2/results/recovered-shards
-          for i in 0 1 2 3; do gh run download 31403135308 -n final-gptnano-shard-$i -D phase2/results/recovered-shards; done
-          for i in 0 1 2 3; do gh run download 31403135308 -n final-deepseek-shard-$i -D phase2/results/recovered-shards; done
-      - name: Recover six successful Claude Amendment 7 shards
-        run: |
-          mkdir -p phase2/results/recovered-claude7
-          for i in 0 2 3 4 5 6; do gh run download 31405985125 -n final-claude7-shard-$i -D phase2/results/recovered-claude7; done
-      - name: Download two Claude Amendment 8 shards
-        uses: actions/download-artifact@v4
-        with:
-          pattern: final-claude8-shard-*
-          path: phase2/results/claude8-shards
-          merge-multiple: true
-      - name: Recombine exact repaired cells
-        run: |
-          mkdir -p phase2/results/all-claude-shards
-          cp phase2/results/recovered-claude7/claude_sonnet5_a7_shard*.jsonl phase2/results/all-claude-shards/
-          cp phase2/results/claude8-shards/claude_sonnet5_a8_shard*.jsonl phase2/results/all-claude-shards/
-          cat phase2/results/all-claude-shards/claude_sonnet5_*_shard*.jsonl > phase2/results/raw/claude_sonnet5.jsonl
-          cat phase2/results/recovered-shards/gpt54nano_shard*.jsonl > phase2/results/raw/gpt54nano.jsonl
-          cat phase2/results/recovered-shards/deepseek_v32_shard*.jsonl > phase2/results/raw/deepseek_v32.jsonl
-          test "$(grep -c . phase2/results/raw/claude_sonnet5.jsonl)" -eq 1032
-          test "$(grep -c . phase2/results/raw/gpt54nano.jsonl)" -eq 1032
-          test "$(grep -c . phase2/results/raw/deepseek_v32.jsonl)" -eq 1032
-      - name: Retain current budget snapshot
-        uses: actions/download-artifact@v4
-        with:
-          name: amendment8-budget-before
-          path: phase2/results
-      - name: Snapshot OpenRouter usage after final primary collection
-        working-directory: phase2
-        run: python scripts/capture_openrouter_usage.py --label after_final_primary
-      - name: Install analysis dependencies
-        run: python -m pip install --disable-pip-version-check numpy pandas scipy matplotlib statsmodels
-      - name: Verify exact 8,256-row primary release
-        working-directory: phase2
-        run: python scripts/verify_primary.py
-      - name: Run frozen primary analysis
-        working-directory: phase2
-        run: python scripts/analyze_results.py
-      - name: Upload final verified primary artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: chile-phase2-final-primary
-          path: phase2/results
-          if-no-files-found: error
-          retention-days: 30
+      - run: |
+          echo "Phase II primary collection is complete and frozen."
+          echo "Historical execution workflow disabled after verified 8,256-row release."
+          echo "See phase2/results/PRIMARY_VERIFICATION.json and phase2/docs/PROTOCOL_AMENDMENT_*.md."
