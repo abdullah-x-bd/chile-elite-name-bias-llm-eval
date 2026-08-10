@@ -1,0 +1,31 @@
+surname,group,chile_frequency_rank,source_class,claim_boundary
+Aldunate,elite_coded,,phase1_elite,experimental elite-coded probe retained from Phase I
+Errázuriz,elite_coded,,phase1_elite,experimental elite-coded probe retained from Phase I
+García-Huidobro,elite_coded,,phase1_elite,experimental elite-coded probe retained from Phase I
+Irarrázaval,elite_coded,,phase1_elite,experimental elite-coded probe retained from Phase I
+Izquierdo,elite_coded,,phase1_elite,experimental elite-coded probe retained from Phase I
+Larraín,elite_coded,,phase1_elite,experimental elite-coded probe retained from Phase I
+Schmidt,elite_coded,,phase1_elite,experimental elite-coded probe retained from Phase I
+Tagle,elite_coded,,phase1_elite,experimental elite-coded probe retained from Phase I
+Undurraga,elite_coded,,phase1_elite,experimental elite-coded probe retained from Phase I
+Vial,elite_coded,,phase1_elite,experimental elite-coded probe retained from Phase I
+González,common_frequency,,phase1_common,common-frequency baseline retained from Phase I; not a lower-class label
+Muñoz,common_frequency,,phase1_common,common-frequency baseline retained from Phase I; not a lower-class label
+Rojas,common_frequency,,phase1_common,common-frequency baseline retained from Phase I; not a lower-class label
+Díaz,common_frequency,,phase1_common,common-frequency baseline retained from Phase I; not a lower-class label
+Pérez,common_frequency,,phase1_common,common-frequency baseline retained from Phase I; not a lower-class label
+Soto,common_frequency,,phase1_common,common-frequency baseline retained from Phase I; not a lower-class label
+Contreras,common_frequency,,phase1_common,common-frequency baseline retained from Phase I; not a lower-class label
+Silva,common_frequency,,phase1_common,common-frequency baseline retained from Phase I; not a lower-class label
+Morales,common_frequency,,phase1_common,common-frequency baseline retained from Phase I; not a lower-class label
+Flores,common_frequency,,phase1_common,common-frequency baseline retained from Phase I; not a lower-class label
+Recabal,rare_frequency,821,forebears_frequency_control,rare-frequency control only; not asserted class-neutral or non-elite
+Calisto,rare_frequency,824,forebears_frequency_control,rare-frequency control only; not asserted class-neutral or non-elite
+Basoalto,rare_frequency,830,forebears_frequency_control,rare-frequency control only; not asserted class-neutral or non-elite
+Pastenes,rare_frequency,835,forebears_frequency_control,rare-frequency control only; not asserted class-neutral or non-elite
+Ruminot,rare_frequency,848,forebears_frequency_control,rare-frequency control only; not asserted class-neutral or non-elite
+Almarza,rare_frequency,850,forebears_frequency_control,rare-frequency control only; not asserted class-neutral or non-elite
+Manosalva,rare_frequency,854,forebears_frequency_control,rare-frequency control only; not asserted class-neutral or non-elite
+Utreras,rare_frequency,855,forebears_frequency_control,rare-frequency control only; not asserted class-neutral or non-elite
+Pedrero,rare_frequency,869,forebears_frequency_control,rare-frequency control only; not asserted class-neutral or non-elite
+Ravanal,rare_frequency,870,forebears_frequency_control,rare-frequency control only; not asserted class-neutral or non-elite
