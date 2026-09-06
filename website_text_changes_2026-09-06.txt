@@ -1,0 +1,164 @@
+WEBSITE TEXT REVISION LOG
+Repository: abdullah-x-bd/chile-elite-name-bias-llm-eval
+Date: 2026-09-06
+Scope: visible website copy only
+
+FILES EDITED
+1. docs/index.html
+2. docs/app.js
+
+FILE ADDED
+3. website_text_changes_2026-09-06.txt
+
+FILES AND BEHAVIOUR LEFT UNCHANGED
+- docs/style.css
+- docs/data.json
+- docs/build_evidence.py
+- favicon and logo assets
+- DOM structure and element IDs
+- chart calculations
+- data values
+- model outputs
+- animation timing and animation code
+- scroll behaviour
+- replay logic
+- heatmap logic
+- equivalence calculations
+- scatterplot calculations
+- responsive layout
+
+EDITORIAL RULES USED
+- Removed or rewrote list-like prose where a sentence was carrying several parallel claims.
+- Reduced rhetorical triads unless the scientific content required multiple items.
+- Rewrote contrast formulas such as "not X but Y" and similar constructions where a direct sentence worked better.
+- Replaced indirect or passive phrasing with direct prose where possible.
+- Removed stock or overly polished AI-style phrasing.
+- Replaced dramatic section titles with descriptive research titles.
+- Preserved technical terms, scientific claims, numerical values, model names, condition names, and output labels.
+
+STATIC COPY CHANGES IN docs/index.html
+
+HEAD / NAVIGATION
+- Meta description changed from a rhetorical question about what a name changes to a direct description of the 8,256-response audit.
+- "The experiment" -> "Experiment"
+- "The associations" -> "Surname associations"
+- "The findings" -> "Results"
+- "Open research" -> "Research archive"
+
+HERO
+- "CHILE / A CROSS-MODEL AUDIT" -> "CHILE / CROSS-MODEL AUDIT"
+- Replaced the rhetorical hero copy about a surname carrying a social signal with:
+  "We changed the surname and held the profile fixed. The question is whether the model changed its judgment."
+- Replaced:
+  "An interactive account of 8,256 model responses. What models associate. What models actually decide."
+  with:
+  "Explore 8,256 recorded model responses. Compare surname associations with matched decision effects."
+- "ENTER THE STUDY" -> "VIEW THE EXPERIMENT"
+
+SECTION 01
+- "01 / THE DISTINCTION" -> "01 / RESEARCH QUESTION"
+- "Recognition is not the same as treatment." -> "Do surname associations affect decisions?"
+- Rewrote the explanatory paragraphs to state the study question and result directly.
+- The new copy says that most models showed a measurable association signal, while decision effects were usually small and five models met the predeclared equivalence criterion.
+
+SECTION 02
+- "02 / REPLAY THE EXPERIMENT" -> "02 / MATCHED DECISION TEST"
+- "Change the name. Keep the person." -> "Same profile. Different surname."
+- Rewrote the section description to explain that the viewer can change the surname condition and inspect recorded responses.
+- "Only the name changes. The four evidence values stay fixed." -> "The profile stays fixed. This view changes only the surname condition."
+- "0–100" -> "0 TO 100"
+- "Replay all three conditions" -> "Replay all conditions"
+- Rewrote the replay note so it states directly that the outputs are archived and the replay makes no live model call.
+
+SECTION 03
+- "03 / THE SOCIAL SIGNAL" -> "03 / SURNAME ASSOCIATIONS"
+- "Thirty names. Eight different readings." -> "How each model reads each surname."
+- Rewrote the heatmap description to explain exactly what each cell reports.
+- "When an answer is required" -> "Forced allocation"
+- "Exactly 100 probability points, even if uncertain." -> "The model must allocate exactly 100 probability points."
+- "When abstention is allowed" -> "Abstention allowed"
+- Rewrote the surname-group note. The new copy explains the common-frequency baseline and rare-frequency rarity check in one direct statement.
+
+BRIDGE
+- "THE QUESTION THAT MATTERS" -> "FROM ASSOCIATION TO DECISION"
+- "Does the signal cross over?" -> "Does a stronger association produce a larger decision effect?"
+- "Measuring a status association and measuring unequal treatment are separate tests." -> "We measured the two effects separately."
+
+SECTION 04
+- "04 / THE CROSS-MODEL RESULT" -> "04 / PRIMARY RESULTS"
+- "A strong association. A different decision story." -> "Association effects are large. Decision effects are mostly small."
+- Rewrote the plot description in direct technical language while preserving the reported 95% bootstrap interval wording.
+- "Small, uncertain, or equivalent?" -> "Did the decision effect fall within the equivalence margin?"
+- Replaced the explanation about a small point estimate with a direct description of the two one-sided tests against the predeclared ±0.10 SD margin.
+- Rewrote the equivalence-chart note so it separately identifies the shaded margin, interval transformation, and TOST verdict.
+
+SECTION 05
+- "05 / DOES ONE PREDICT THE OTHER?" -> "05 / ASSOCIATION AND DECISION EFFECTS"
+- "The missing connection." -> "Are the two effects related?"
+- Replaced the sentence about stronger associations failing to predict larger decision effects with the measured result: Pearson r = 0.201.
+- Rewrote the plot note to say that the chart compares measured effects across models and provides no evidence about internal mechanisms.
+
+SECTION 06
+- "06 / CHANGE THE TEST" -> "06 / ROBUSTNESS CHECKS"
+- "What happens at the edges?" -> "What changes under alternative test designs?"
+- Removed the list-style description of metadata, holistic instructions, and rarity. The new copy explains that each robustness analysis changes one feature of the test at a time.
+- Rewrote the false-discovery-rate note to state the corrected result directly.
+
+CONCLUSION
+- "THE TAKEAWAY" -> "CONCLUSION"
+- "What a model associates is not necessarily what it acts on." -> "Surname associations were clear. Decision effects were usually small."
+- Replaced the concluding contrast with:
+  "For consequential systems, measure treatment directly. Association probes answer a separate question."
+
+SECTION 07
+- "07 / THE RESEARCH RECORD" -> "07 / STUDY RECORD"
+- "Every result has a trail." -> "Study record and scope."
+- Rewrote the Phase I / Phase II description in direct language.
+- "Find the question" -> "Exploratory phase"
+- Phase I paragraph shortened to state its role in informing the confirmatory design.
+- "Fix the experiment" -> "Experiment freeze"
+- Freeze paragraph rewritten to state that the full experimental design and analysis plan were fingerprinted before execution.
+- "Read the evidence" -> "Primary release"
+- Release paragraph rewritten as one factual sentence covering 8,256 responses, eight models, four decision domains, and zero semantically invalid accepted rows.
+- "Keep the limits visible" -> "Unexecuted robustness layer"
+- Budget-gate paragraph rewritten in active, direct language.
+- "What the study establishes" paragraph rewritten to describe the association/decision relationship, equivalence results, uncertainty, Llama 4 Maverick boundary result, and the tested scope without rhetorical framing.
+- "Data, methods, and reproducibility" paragraph rewritten to state where displayed data and published estimates come from and how the build script checks them.
+- Animation explanation rewritten to say that the animations display recorded study material and should be read as visualizations of the study record.
+
+DYNAMIC COPY CHANGES IN docs/app.js
+
+REPLAY
+- "Replay all three conditions" -> "Replay all conditions"
+
+ABSTENTION PANEL
+- "The model chose to make an inference." -> "Model returned an inference."
+- "The model declined to infer from surname alone." -> "Model abstained from the surname inference."
+- "All three allocations are zero." -> "All allocations are zero."
+
+EQUIVALENCE PANEL
+- "Equivalent within the declared margin." -> "Within the declared equivalence margin."
+- "Small effect, near the boundary." -> "Small estimate near the equivalence boundary."
+- "Too imprecise to establish equivalence." -> "Interval too wide for an equivalence finding."
+- Rewrote the dynamic explanation for models that pass equivalence to state that the model passed the study's two one-sided tests.
+- Rewrote the Llama 4 Maverick explanation to state that the positive effect sits close to the declared equivalence boundary.
+- Rewrote the imprecise-model explanation to state that the interval is too wide for an equivalence finding.
+
+SECONDARY ANALYSES
+- Rare-frequency explanation rewritten to state directly what the control tests and what the release analysis found.
+- Metadata explanation rewritten to state where the surname appears and what the comparison measures.
+- Holistic explanation shortened to a direct description of the frozen-profile comparison.
+
+UNCHANGED TEXT BY DESIGN
+- Model/provider names
+- Surname names and experimental group labels
+- Decision-domain names
+- Feature labels
+- Response categories such as "Advance" and "Do not advance"
+- Technical axis labels
+- Numerical results
+- Statistical symbols and values
+- Exact prompts loaded from the frozen research data
+- Recorded JSON outputs
+
+END OF LOG
