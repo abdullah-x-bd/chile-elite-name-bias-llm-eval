@@ -1,118 +1,35 @@
-const experiments = [
-  {
-    label: "v0.2",
-    title: "Clean Chilean Spanish run",
-    body: "Equal-allowed pairwise, forced-choice pairwise, single-profile ratings, and diagnostics. Chilean Spanish made status recognition cleaner but did not create rating leakage.",
-    tags: ["700 prompts", "gpt-5.4-mini", "no rating gap"]
-  },
-  {
-    label: "v0.3",
-    title: "Chilean institutional framing",
-    body: "Local institutional settings made the task feel more realistic. One academic-selection signal appeared, but later replication did not support it.",
-    tags: ["680 prompts", "institutional framing", "not replicated"]
-  },
-  {
-    label: "v0.4",
-    title: "Institution prestige mapping",
-    body: "Names were mapped to Chilean institutions. This became the strongest positive signal: elite-coded surnames received more high-prestige probability mass.",
-    tags: ["600 prompts", "+16.62 points", "main positive result"]
-  },
-  {
-    label: "v0.5",
-    title: "Academic focused replication",
-    body: "A larger single-profile academic run tested whether the earlier academic gap was stable. It was not. The gap was essentially zero.",
-    tags: ["2000 prompts", "+0.002", "failed replication"]
-  },
-  {
-    label: "v0.6",
-    title: "Hidden metadata academic review",
-    body: "Names appeared inside PDF filenames and email sender fields. The matched design found no stable elite advantage in scores or shortlists.",
-    tags: ["500 prompts", "6000 scores", "no leakage"]
-  }
-];
-
-const charts = {
-  prestige: {
-    max: 100,
-    rows: [["Elite-coded", 72.59, "72.59%"], ["Common baseline", 55.97, "55.97%"]]
-  },
-  academic: {
-    max: 7,
-    rows: [["Elite-coded", 6.420, "6.420"], ["Common baseline", 6.418, "6.418"]]
-  },
-  metadata: {
-    max: 0.05,
-    rows: [["File metadata", 0.005, "+0.005"], ["Email metadata", 0.004, "-0.004"]]
-  },
-  choice: {
-    max: 100,
-    rows: [["Elite to PUC", 87, "87"], ["Elite to UChile", 10, "10"], ["Elite to UAndes", 3, "3"], ["Common to PUC", 0, "0"], ["Common to UChile", 100, "100"], ["Common to UAndes", 0, "0"]]
-  }
-};
-
-const eliteNames = ["Aldunate", "Errázuriz", "García-Huidobro", "Irarrázaval", "Izquierdo", "Larraín", "Schmidt", "Tagle", "Undurraga", "Vial"];
-const commonNames = ["González", "Muñoz", "Rojas", "Díaz", "Pérez", "Soto", "Contreras", "Silva", "Morales", "Flores"];
-
-function renderLogo() {
-  const icon = document.createElement("link");
-  icon.rel = "icon";
-  icon.href = "logo.svg?v=3";
-  icon.type = "image/svg+xml";
-  document.head.appendChild(icon);
-
-  const brand = document.querySelector(".brand");
-  if (brand) {
-    brand.innerHTML = `<img class="brand-logo-img" src="logo.svg?v=3" alt="Chilean Surname Audit emblem">`;
-  }
-
-  const style = document.createElement("style");
-  style.textContent = `
-    .brand { min-width: 86px; display: flex; align-items: center; justify-content: flex-start; }
-    .brand-logo-img { width: 74px; height: 74px; display: block; object-fit: contain; background: transparent; }
-    h1 { font-size: clamp(42px, 5.4vw, 74px) !important; line-height: 1.02 !important; max-width: 760px !important; margin-bottom: 18px !important; }
-    .hero { min-height: 660px !important; }
-    .subtitle { font-size: clamp(20px, 2.2vw, 28px) !important; max-width: 690px !important; }
-    .hero-text { font-size: 17px !important; max-width: 650px !important; }
-    .hero-card h2 { font-size: clamp(30px, 3vw, 42px) !important; line-height: 1.02 !important; }
-    @media (max-width: 900px) { .brand { min-width: 74px; } .brand-logo-img { width: 62px; height: 62px; } h1 { font-size: clamp(42px, 11vw, 66px) !important; } }
-  `;
-  document.head.appendChild(style);
-}
-
-function renderTimeline() {
-  const root = document.getElementById("timeline");
-  if (!root) return;
-  root.innerHTML = experiments.map(item => `
-    <article class="timeline-item">
-      <div class="timeline-label">${item.label}</div>
-      <div>
-        <h3>${item.title}</h3>
-        <p>${item.body}</p>
-        <div class="timeline-tags">${item.tags.map(tag => `<span>${tag}</span>`).join("")}</div>
-      </div>
-    </article>
-  `).join("");
-}
-
-function renderCharts() {
-  document.querySelectorAll("[data-chart]").forEach(node => {
-    const chart = charts[node.dataset.chart];
-    if (!chart) return;
-    node.innerHTML = chart.rows.map(([label, value, display]) => {
-      const width = Math.max(1, Math.min(100, Math.abs(value) / chart.max * 100));
-      return `<div class="bar-row"><div class="bar-label">${label}</div><div class="bar-track"><div class="bar-fill" style="--w:${width}%"></div></div><div class="bar-value">${display}</div></div>`;
-    }).join("");
-  });
-}
-
-function renderNames() {
-  const eliteRoot = document.getElementById("eliteNames");
-  const commonRoot = document.getElementById("commonNames");
-  if (eliteRoot) eliteRoot.innerHTML = eliteNames.map(name => `<span>${name}</span>`).join("");
-  if (commonRoot) commonRoot.innerHTML = commonNames.map(name => `<span>${name}</span>`).join("");
-}
-
-renderLogo();
-renderTimeline();
-renderCharts();
-renderNames();
+'use strict';
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const signed=(x,d=2)=>(x<0?'−':x>0?'+':'')+Math.abs(x).toFixed(d);
+const mean=a=>a.reduce((s,x)=>s+x,0)/a.length;
+let data,meta,condition='blind',selectedModel='claude_sonnet5',selectedSurname='Errázuriz',replayTimer=null;
+let paused=matchMedia('(prefers-reduced-motion: reduce)').matches,heroIndex=0;
+function syncMotion(){document.body.classList.toggle('motion-paused',paused);$('#motion').textContent=paused?'Play animation ▷':'Pause animation Ⅱ';$('#motion').setAttribute('aria-pressed',String(paused));}
+$('#motion').addEventListener('click',()=>{paused=!paused;syncMotion();if(paused)stopReplay()});syncMotion();
+const groupLabels={elite_coded:'Elite-coded probe',common_frequency:'Common-frequency control',rare_frequency:'Rare-frequency control'};
+const featureLabels={expediente_academico:'Academic record',preparacion_investigacion:'Research preparation',preparacion_metodos:'Methods preparation',ajuste_programa:'Programme fit',experiencia_relevante:'Relevant experience',muestra_tecnica:'Technical work sample',comunicacion:'Communication',confiabilidad:'Reliability',calidad_propuesta:'Proposal quality',trayectoria:'Track record',factibilidad:'Feasibility',urgencia:'Urgency',documentacion:'Documentation',impacto_vulnerabilidad:'Impact / vulnerability',viabilidad_procesal:'Procedural viability'};
+const categoryLabels={high_prestige:'High prestige',middle_tier:'Middle tier',broad_access:'Broad access',private_paid:'Private paid',subsidized_private:'Subsidized private',public:'Public'};
+function options(){const opts=data.models.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join('');for(const id of ['replay-model','equivalence-model','secondary-model'])$('#'+id).innerHTML=opts;}
+function profileOptions(){const ps=data.profiles.filter(p=>p.domain===$('#domain').value);$('#profile').innerHTML=ps.map((p,i)=>`<option value="${p.profile_id}">Profile ${String(i+1).padStart(2,'0')} · ${p.profile_id.toUpperCase()}</option>`).join('');renderReplay();}
+function stopReplay(){clearInterval(replayTimer);replayTimer=null;$('#replay').textContent='Replay all three conditions ↻';}
+function renderReplay(){const model=$('#replay-model').value,pid=$('#profile').value,p=data.profiles.find(x=>x.profile_id===pid),prompt=meta.get(`decision::main::${pid}::${condition}`),r=data.responses[model][prompt.prompt_id];$('#profile-code').textContent=pid.toUpperCase();$('#candidate').textContent=condition==='blind'?'Anonymous candidate':`${prompt.given_name} ${prompt.surname}`;$('#features').innerHTML=Object.entries(p.feature_values).map(([key,value])=>`<div class="feature"><span>${esc(featureLabels[key])}</span><span class="feature-meter" aria-label="${value} out of 5">${[1,2,3,4,5].map(i=>`<i class="${i<=value?'filled':''}"></i>`).join('')}<b>${value}/5</b></span></div>`).join('');$('#prompt').textContent=prompt.prompt_text;$('#score').textContent=r.score;$('#score-track').style.width=r.score+'%';$('#recommendation').textContent=r.recommendation==='advance'?'Advance':'Do not advance';$('#confidence').textContent=r.confidence+'/100';$('#path-model').textContent=data.models.find(m=>m.id===model).name;$('#paired-mini').innerHTML=['blind','elite','common'].map(c=>{const rr=data.responses[model][`decision::main::${pid}::${c}`];return `<div class="paired-row"><span>${c==='blind'?'Blind':c==='elite'?'Elite-coded':'Common-frequency'}</span><i><b style="width:${rr.score}%"></b></i><span>${rr.score}</span></div>`}).join('');$$('[data-condition]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.condition===condition)));}
+$$('[data-condition]').forEach(b=>b.addEventListener('click',()=>{stopReplay();condition=b.dataset.condition;renderReplay()}));
+$('#domain').addEventListener('change',()=>{stopReplay();profileOptions()});for(const id of ['profile','replay-model'])$('#'+id).addEventListener('change',()=>{stopReplay();renderReplay()});
+$('#replay').addEventListener('click',()=>{if(replayTimer){stopReplay();return}condition='blind';renderReplay();let step=0;$('#replay').textContent='Stop replay Ⅱ';replayTimer=setInterval(()=>{step++;if(step>2){stopReplay();return}condition=['blind','elite','common'][step];renderReplay()},1400)});
+function associationRows(model,surname,abstain=false){return data.manifest.filter(r=>r.bank==='association'&&r.surname===surname&&r.instrument.endsWith(abstain?'_abstention':'_forced')).map(r=>({...r,output:data.responses[model][r.prompt_id]}));}
+function heatValue(model,surname){return mean(associationRows(model,surname).map(r=>r.output[r.domain==='university_prestige'?'high_prestige':'private_paid']));}
+function heatColor(v){const a=[247,235,226],b=[141,24,45];return `rgb(${a.map((x,i)=>Math.round(x+(b[i]-x)*v/100)).join(',')})`;}
+function heatmap(){let html='<span></span>'+data.surnames.map(s=>`<span class="heat-name">${esc(s.surname)}</span>`).join('');for(const m of data.models){html+=`<span class="heat-model">${esc(m.name)}</span>`+data.surnames.map((s,i)=>{const value=heatValue(m.id,s.surname);return `<button class="heat-cell ${i===10||i===20?'group-start':''}" data-model="${m.id}" data-surname="${esc(s.surname)}" style="background:${heatColor(value)}" aria-label="${esc(m.name)}, ${esc(s.surname)}, ${value.toFixed(1)} high-status probability points" title="${esc(m.name)} · ${esc(s.surname)} · ${value.toFixed(1)}" aria-pressed="false"></button>`}).join('')}$('#heatmap').innerHTML=html;$$('.heat-cell').forEach(b=>b.addEventListener('click',()=>{selectedModel=b.dataset.model;selectedSurname=b.dataset.surname;renderAssociation()}));renderAssociation();}
+function allocationHtml(output,domain){const keys=domain==='university_prestige'?['high_prestige','middle_tier','broad_access']:['private_paid','subsidized_private','public'];return keys.map(k=>`<div class="allocation-bar"><div><span>${categoryLabels[k]}</span><span>${output[k]} / 100</span></div><i><b style="width:${output[k]}%"></b></i></div>`).join('');}
+function renderAssociation(){const domain=$('#association-domain').value,forced=associationRows(selectedModel,selectedSurname).find(x=>x.domain===domain),abstain=associationRows(selectedModel,selectedSurname,true).find(x=>x.domain===domain),group=data.surnames.find(s=>s.surname===selectedSurname).group;$('#selected-name').textContent=selectedSurname;$('#selected-group').textContent=groupLabels[group].toUpperCase();$('#selected-model').textContent=data.models.find(m=>m.id===selectedModel).name;$('#forced-bars').innerHTML=allocationHtml(forced.output,domain);$('#abstain-verdict').textContent=abstain.output.can_infer?'The model chose to make an inference.':'The model declined to infer from surname alone.';$('#abstain-bars').innerHTML=abstain.output.can_infer?allocationHtml(abstain.output,domain):'<div class="abstain-message">Insufficient information.</div><p class="small-note">can_infer = false<br>All three allocations are zero.</p>';$('#association-json').textContent='FORCED\n'+JSON.stringify(forced.output,null,2)+'\n\nABSTENTION PERMITTED\n'+JSON.stringify(abstain.output,null,2);$$('.heat-cell').forEach(b=>{const active=b.dataset.model===selectedModel&&b.dataset.surname===selectedSurname;b.classList.toggle('selected',active);b.setAttribute('aria-pressed',String(active))});}
+$('#association-domain').addEventListener('change',renderAssociation);
+function forestPlot(values,min,max,label){const pos=v=>(v-min)/(max-min)*100;return `<div class="forest-plot" role="img" aria-label="${esc(label)}: ${signed(values[0],3)}, reported 95 percent interval ${signed(values[1],3)} to ${signed(values[2],3)}"><i class="zero" style="left:${pos(0)}%"></i><i class="ci" style="left:${pos(values[1])}%;width:${pos(values[2])-pos(values[1])}%"></i><i class="mark" style="left:${pos(values[0])}%"></i><span class="effect-value" style="left:${pos(values[0])}%">${signed(values[0],values===null?2:3)}</span></div>`;}
+function forests(){$('#forests').innerHTML=data.models.map(m=>`<div class="forest-row"><span class="forest-model">${esc(m.name)}</span>${forestPlot(m.association,-10,70,m.name+' association effect')}${forestPlot(m.decision,-7,7,m.name+' decision effect')}</div>`).join('');}
+function equivalence(){const m=data.models.find(x=>x.id===$('#equivalence-model').value),values=m.decision.map(x=>x/m.blind_sd),pos=x=>(x+.3)/.6*100;$('#equivalence-chart').innerHTML=`<div class="eq-plot" role="img" aria-label="${esc(m.name)}, standardized decision effect ${signed(values[0],3)}, interval ${signed(values[1],3)} to ${signed(values[2],3)}"><div class="eq-band"></div><i class="ci" style="left:${pos(values[1])}%;width:${pos(values[2])-pos(values[1])}%"></i><i class="mark" style="left:${pos(values[0])}%"></i></div><div class="eq-axis"><span>−0.30 SD</span><span>−0.10</span><span>0</span><span>+0.10</span><span>+0.30 SD</span></div>`;$('#equivalence-verdict').textContent=m.equivalent?'Equivalent within the declared margin.':m.id==='llama4_maverick'?'Small effect, near the boundary.':'Too imprecise to establish equivalence.';$('#equivalence-note').textContent=`Standardized point estimate ${signed(values[0],3)} SD. `+(m.equivalent?'Both one-sided equivalence tests passed at the declared level.':m.id==='llama4_maverick'?'The nominal elite-common effect is positive; the equivalence criterion was not met.':'The small point estimate comes with uncertainty that prevents a practical-equivalence conclusion.');}
+$('#equivalence-model').addEventListener('change',equivalence);
+function scatter(){const x=v=>80+v/70*530,y=v=>365-(v+1.6)/2.4*300;let s='';for(const value of [0,20,40,60])s+=`<line x1="${x(value)}" y1="40" x2="${x(value)}" y2="365" stroke="#d6d0c7"/><text x="${x(value)}" y="390" text-anchor="middle">${value}</text>`;for(const value of [-1.5,-1,-.5,0,.5])s+=`<line x1="80" y1="${y(value)}" x2="610" y2="${y(value)}" stroke="${value===0?'#8d182d':'#d6d0c7'}" stroke-dasharray="${value===0?'4 4':'0'}"/><text x="66" y="${y(value)+4}" text-anchor="end">${signed(value,1)}</text>`;s+='<text x="345" y="430" text-anchor="middle">Association effect · probability points</text><text transform="translate(18,210) rotate(-90)" text-anchor="middle">Decision effect · score points</text>';s+=data.models.map((m,i)=>`<g><rect class="scatter-point" tabindex="0" role="button" aria-label="${esc(m.name)}: association ${signed(m.association[0])}, decision ${signed(m.decision[0],3)}" data-id="${m.id}" x="${x(m.association[0])-6}" y="${y(m.decision[0])-6}" width="12" height="12" transform="rotate(45 ${x(m.association[0])} ${y(m.decision[0])})"><title>${esc(m.name)}</title></rect><text x="${x(m.association[0])+12}" y="${y(m.decision[0])+(i===0?-12:i===6?20:-9)}">${esc(m.name.split(' ')[0])}</text></g>`).join('');$('#scatter').innerHTML=s;$$('.scatter-point').forEach(p=>{const choose=()=>{const m=data.models.find(m=>m.id===p.dataset.id);$('#scatter-caption').textContent=`${m.name}: association ${signed(m.association[0])} probability points; decision ${signed(m.decision[0],3)} score points.`};p.addEventListener('click',choose);p.addEventListener('focus',choose);p.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose()}})});}
+function secondary(){const model=$('#secondary-model').value,type=$('#secondary-type').value;let bars,unit,copy;if(type==='rarity'){bars=['elite_coded','common_frequency','rare_frequency'].map(group=>({name:groupLabels[group].replace(' probe','').replace(' control',''),value:mean(data.surnames.filter(s=>s.group===group).map(s=>heatValue(model,s.surname)))}));unit='Mean forced high-status mass / 100';copy='Rare-frequency controls test whether unusual surname form or rarity alone explains the signal. All eight models show positive, statistically detectable elite-minus-rare association contrasts in the release analysis.';}else{const bank=type==='metadata'?'decision_metadata':'decision_holistic';bars=(type==='metadata'?['blind_metadata','elite_metadata','common_metadata']:['blind','elite','common']).map(c=>({name:c.startsWith('blind')?'Blind':c.startsWith('elite')?'Elite-coded':'Common-frequency',value:mean(data.manifest.filter(r=>r.bank===bank&&r.condition===c).map(r=>data.responses[model][r.prompt_id].score))}));unit='Mean decision score / 100 · 48 profiles per condition';copy=type==='metadata'?'The name appears only in the filename metadata; the profile body remains anonymous. This tests whether a less direct name cue changes treatment.':'The model evaluates relevant evidence holistically instead of following explicitly weighted instructions. The comparison uses the same frozen subset of profiles.';}$('#secondary-copy').textContent=copy;$('#secondary-chart').innerHTML=`<p class="secondary-unit">${unit}</p>`+bars.map(b=>`<div class="secondary-bar"><div><span>${b.name}</span><span>${b.value.toFixed(2)}</span></div><i><b style="width:${b.value}%"></b></i></div>`).join('');}
+for(const id of ['secondary-model','secondary-type'])$('#'+id).addEventListener('change',secondary);
+window.addEventListener('scroll',()=>{const max=document.documentElement.scrollHeight-innerHeight;$('#reading-progress').style.width=(max>0?scrollY/max*100:0)+'%'},{passive:true});
+fetch('data.json').then(r=>{if(!r.ok)throw Error('Evidence bundle unavailable');return r.json()}).then(d=>{data=d;meta=new Map(d.manifest.map(r=>[r.prompt_id,r]));options();profileOptions();heatmap();forests();equivalence();scatter();secondary();const rotation=['Errázuriz','Muñoz','Larraín','González','Vial','Rojas'];setInterval(()=>{if(paused||document.hidden)return;const name=rotation[++heroIndex%rotation.length],s=data.surnames.find(s=>s.surname===name);if(!s)return;$('#hero-name').classList.add('changing');setTimeout(()=>{$('#hero-name').textContent=name;$('#hero-group').textContent=groupLabels[s.group].toUpperCase();$('#hero-name').classList.remove('changing')},300)},3600)}).catch(e=>{const box=$('#data-error');box.hidden=false;box.textContent='The research data did not load. Please reload the page, or open the research archive above.';console.error(e);$$('select,button').forEach(el=>el.disabled=true)});
